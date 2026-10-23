@@ -1,0 +1,14 @@
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.env
+.env.*
+!.env.example
+institutional_predictor/.env
+institutional_predictor/iip.sqlite3
+dist/
+build/
+*.egg-info/

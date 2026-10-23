@@ -1,42 +1,98 @@
-# Risvanta
+# Portfolio Lens
 
-See beyond the returns: an illustrative portfolio-risk education workspace with an optional FastAPI backend.
+Portfolio Lens is a local-first portfolio risk analyzer. Add or upload holdings, look through user-supplied mutual-fund constituent weights, review sector/currency/asset-class exposure, and run an illustrative equity and USD/INR stress scenario. The React dashboard calls a FastAPI calculation endpoint.
 
-## Run
+> **Important:** This is an educational calculation tool, not personalized investment advice. It does not place trades, retrieve live prices, or claim to predict market returns.
 
-Requires Node.js 20.19+ (or 22.12+) and npm. From the repository root:
+## Start the application
 
-```bash
+Requirements: Python 3.11+ and Node.js 20.19+ (or 22.12+) with npm.
+
+### 1. Start the API
+
+From the repository root, in a terminal:
+
+```powershell
+python -m pip install -r institutional_predictor\requirements.txt
+python -m uvicorn institutional_predictor.app:app --host 127.0.0.1 --port 8001
+```
+
+Interactive API documentation: <http://127.0.0.1:8001/docs>. `POST /api/analyze` accepts the portfolio and scenario and processes the request in memory.
+
+### 2. Start the frontend
+
+In another terminal:
+
+```powershell
 cd frontend
-npm install
+npm ci
 npm run dev
 ```
 
-Open the URL printed by Vite. `npm run build` creates a production bundle, `npm run preview` serves it, and `npm test` runs calculation tests.
+Open <http://127.0.0.1:5173>. Vite proxies `/api` requests to the API on port 8001. Use **Load demo** to inspect the workflow; those prices and example mutual-fund constituents are illustrative, not current market data or real fund disclosures.
 
-To connect to the backend, start it from `backend/` with `python -m pip install -r requirements.txt` then `python -m uvicorn app.main:app --reload --host 127.0.0.1 --port 8000`. Create `frontend/.env` from `.env.example` (or set `VITE_USE_MOCK_DATA=false`); restart Vite. By default `/api/v1` is proxied to port 8000 in development. On a separately hosted production deployment, set `VITE_API_BASE_URL` to the full backend URL including `/api/v1` and configure backend `CORS_ORIGINS` accordingly. Use `VITE_USE_MOCK_DATA=true` to return to the offline demo; switching modes does not transfer holdings.
+## Portfolio JSON
 
-## What you can explore
+Provide a JSON array. Direct holdings use quantity and price; mutual-fund `price` is the INR NAV and `quantity` is the number of units. Add `constituents` as fractional weights (0 to 1) of the INR NAV for look-through sector, currency, overlap, and stress calculations. Constituent values remain in INR; their currency tag affects FX exposure but does not convert the already INR-valued fund NAV again. Constituents not listed are reported as `Other` rather than assumed to be a known sector or asset.
 
-- `/` — overview, allocation, risk highlights, session-only simulation history
-- `/portfolio` — add, edit, delete, search, filter, sort, export, and reset holdings; CSV import is explicitly unavailable
-- `/exposure` — asset class, sector, underlying company, geography, currency, and illustrative fund look-through
-- `/stress-test` — hypothetical market, sector, FX, combined, and custom scenario controls with position-level estimates
-- `/insights` — deterministic findings, calculation evidence drawer, and local prototype explanations
-- `/settings` — base currency, fixed FX assumptions, demo controls, privacy and disclaimer
+```json
+[
+  {
+    "type": "equity",
+    "symbol": "TCS",
+    "quantity": 10,
+    "price": 3000,
+    "currency": "INR",
+    "sector": "Information Technology",
+    "source_url": "https://example.org/holding-source"
+  },
+  {
+    "type": "mf",
+    "symbol": "Example Fund",
+    "quantity": 200,
+    "price": 50,
+    "constituents": [
+      { "symbol": "TCS", "weight": 0.15, "sector": "Information Technology" },
+      { "symbol": "HDFC Bank", "weight": 0.10, "sector": "Banking" }
+    ]
+  },
+  {
+    "type": "us_stock",
+    "symbol": "AAPL",
+    "quantity": 5,
+    "price": 150,
+    "currency": "USD",
+    "sector": "Technology"
+  }
+]
+```
 
-Built with React, TypeScript, Vite, Tailwind CSS, React Router, Lucide, Recharts, React Hook Form, Zod, and Vitest. UI is dark-first with responsive layouts. The browser stores edited positions and currency preference locally; scenario history lasts only for the current page session.
+Types: `equity`, `mf`, `us_stock`, `etf`, and `debt`. Optional fields include `asset_class` (`Equity`, `Debt`, or `Other`), mutual-fund `amc`/`scheme_code`, and `source_url` (HTTP/HTTPS only). The analysis request also accepts `scenario` fields `equityShockPercent` and `usdInrChange`, plus `usd_inr_rate` (INR per USD). The frontend defaults to an explicitly user-editable rate of 83.5; it is not a live quote.
 
-## Data and calculations
+## Analysis and sources
 
-The seven sample holdings, fund weights, and FX assumptions are fictional and dated 2026-01-15. `src/data.ts` defines them; `src/services/portfolio.ts` owns local persistence; `src/lib/risk.ts` provides pure conversion, allocation, look-through, and scenario functions. Converted value = holding currency value × illustrative USD-per-unit rate ÷ base currency USD-per-unit rate. Price and USD/base FX shocks combine as `(1 + asset return) × (1 + FX return) − 1`. Currency shocks affect USD-denominated holdings only when the base currency is not USD. Non-applicable positions are marked “Not modelled”. Values are estimates, not predictions or investment advice.
+- Exposure percentages are normalized to 100% across each allocation view.
+- A fund overlap is reported only when the same constituent appears in at least two supplied funds. Its weights are relative to the total portfolio value.
+- Equity shock applies to equity-class exposures. Currency shock applies to USD exposures and includes the equity/FX interaction.
+- The deterministic explanation is generated from the calculated figures. Source links are shown only when supplied by the user; no external evidence is fabricated.
+- The API does not persist the submitted portfolio. The legacy SEC tracker tables/endpoints are not used by the active portfolio analysis workflow.
+- This MVP does not fetch AMFI/CAMS constituents, prices, RBI FX rates, or external research. It has no AI/LLM, ML alerts, user accounts, or Account Aggregator connection.
 
-In API mode, holdings, converted exposure, insights, scenarios, results and template explanations come directly from backend endpoints under `/api/v1`. Backend fixtures differ from offline fixtures (and are dated 2026-06-30). The frontend uses backend valuation and source metadata, preserves incomplete results as incomplete, and does **not** recalculate API-mode results with offline constants. Backend portfolios are process-memory only and disappear on restart. Errors are shown with Retry; they never silently switch to offline data.
+## Validate
 
-## Environment and future API
+```powershell
+python -m pytest institutional_predictor\tests -q
+cd frontend
+npm test
+npm run build
+```
 
-`.env.example` documents `VITE_USE_MOCK_DATA=false` and `VITE_API_BASE_URL=/api/v1`. The default without an `.env` is offline mode. API responses are validated before display, requests time out after ten seconds, and server error messages are surfaced. Never put secrets in Vite environment variables.
+## Architecture
 
-## Limitations
-
-No authentication, database, live prices, verified fund holdings, AI provider, or CSV parser is included. Holdings entered by hand are not repriced or verified. API-mode portfolios have no user isolation and should only be used locally. Data and calculation evidence are illustrative. Risk outputs are hypothetical estimates, not forecasts, guarantees, or personalized advice.
+```mermaid
+graph LR
+  User[User] --> UI[React portfolio workspace]
+  UI -->|JSON holding inputs + scenario| API[FastAPI /api/analyze]
+  API --> Engine[Deterministic risk calculations]
+  Engine -->|One-request result; not persisted| UI
+```
