@@ -1,0 +1,9 @@
+[
+  {"base_currency": "USD", "foreign_currency": "EUR", "rate": "1.08", "as_of_date": "2026-06-30", "source_label": "Illustrative Risvanta FX fixture", "source_id": "src-demo-fx", "data_status": "illustrative"},
+  {"base_currency": "USD", "foreign_currency": "GBP", "rate": "1.27", "as_of_date": "2026-06-30", "source_label": "Illustrative Risvanta FX fixture", "source_id": "src-demo-fx", "data_status": "illustrative"},
+  {"base_currency": "USD", "foreign_currency": "INR", "rate": "0.012", "as_of_date": "2026-06-30", "source_label": "Illustrative Risvanta FX fixture", "source_id": "src-demo-fx", "data_status": "illustrative"},
+  {"base_currency": "USD", "foreign_currency": "JPY", "rate": "0.0069", "as_of_date": "2026-06-30", "source_label": "Illustrative Risvanta FX fixture", "source_id": "src-demo-fx", "data_status": "illustrative"},
+  {"base_currency": "USD", "foreign_currency": "CAD", "rate": "0.73", "as_of_date": "2026-06-30", "source_label": "Illustrative Risvanta FX fixture", "source_id": "src-demo-fx", "data_status": "illustrative"},
+  {"base_currency": "USD", "foreign_currency": "AUD", "rate": "0.66", "as_of_date": "2026-06-30", "source_label": "Illustrative Risvanta FX fixture", "source_id": "src-demo-fx", "data_status": "illustrative"},
+  {"base_currency": "USD", "foreign_currency": "CHF", "rate": "1.10", "as_of_date": "2026-06-30", "source_label": "Illustrative Risvanta FX fixture", "source_id": "src-demo-fx", "data_status": "illustrative"}
+]

@@ -1,0 +1,50 @@
+[
+  {
+    "fund_id": "holding-atlas-fund",
+    "underlying_asset_id": "asset-northstar",
+    "underlying_name": "Northstar Systems",
+    "weight": "0.20",
+    "sector": "Technology",
+    "country": "United States",
+    "currency": "USD",
+    "as_of_date": "2026-06-30",
+    "data_status": "illustrative",
+    "source_id": "src-demo-constituents"
+  },
+  {
+    "fund_id": "holding-atlas-fund",
+    "underlying_asset_id": "asset-harbor",
+    "underlying_name": "Harbor Health",
+    "weight": "0.30",
+    "sector": "Healthcare",
+    "country": "United States",
+    "currency": "USD",
+    "as_of_date": "2026-06-30",
+    "data_status": "illustrative",
+    "source_id": "src-demo-constituents"
+  },
+  {
+    "fund_id": "holding-euro-fund",
+    "underlying_asset_id": "asset-northstar",
+    "underlying_name": "Northstar Systems",
+    "weight": "0.15",
+    "sector": "Technology",
+    "country": "United States",
+    "currency": "USD",
+    "as_of_date": "2026-06-30",
+    "data_status": "illustrative",
+    "source_id": "src-demo-constituents"
+  },
+  {
+    "fund_id": "holding-euro-fund",
+    "underlying_asset_id": "asset-river",
+    "underlying_name": "Riverstone Industries",
+    "weight": "0.35",
+    "sector": "Industrials",
+    "country": "Germany",
+    "currency": "EUR",
+    "as_of_date": "2026-06-30",
+    "data_status": "illustrative",
+    "source_id": "src-demo-constituents"
+  }
+]
