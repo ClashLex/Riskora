@@ -12,3 +12,6 @@ institutional_predictor/iip.sqlite3
 dist/
 build/
 *.egg-info/
+backend/data/
+frontend/node_modules/
+frontend/*.tsbuildinfo

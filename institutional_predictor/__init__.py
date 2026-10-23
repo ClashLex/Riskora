@@ -1,1 +1,0 @@
-"""Institutional investment predictor prototype."""

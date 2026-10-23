@@ -1,98 +1,113 @@
-# Portfolio Lens
+# Riskora — Indian Mutual Fund Purchase Intelligence
 
-Portfolio Lens is a local-first portfolio risk analyzer. Add or upload holdings, look through user-supplied mutual-fund constituent weights, review sector/currency/asset-class exposure, and run an illustrative equity and USD/INR stress scenario. The React dashboard calls a FastAPI calculation endpoint.
+Riskora is a local research prototype that ranks stocks that may **newly appear in the next valid disclosed portfolio snapshot** of an Indian equity mutual-fund scheme. A disclosure reports positions at a date; it cannot reveal an order, its execution date, or a manager's intent. Scores are uncalibrated ranking scores, not probabilities or investment advice.
 
-> **Important:** This is an educational calculation tool, not personalized investment advice. It does not place trades, retrieve live prices, or claim to predict market returns.
+## Start locally
 
-## Start the application
-
-Requirements: Python 3.11+ and Node.js 20.19+ (or 22.12+) with npm.
-
-### 1. Start the API
-
-From the repository root, in a terminal:
+Requires Python 3.11+ and Node.js compatible with Vite 8 (Node 20.19+ or 22.12+). Use two PowerShell terminals.
 
 ```powershell
-python -m pip install -r institutional_predictor\requirements.txt
-python -m uvicorn institutional_predictor.app:app --host 127.0.0.1 --port 8001
+cd C:\rdr\backend
+python -m pip install -r requirements.txt
+$env:RISKORA_ADMIN_TOKEN = 'replace-with-a-long-local-secret'
+python -m uvicorn app.main:app --host 127.0.0.1 --port 8001
 ```
 
-Interactive API documentation: <http://127.0.0.1:8001/docs>. `POST /api/analyze` accepts the portfolio and scenario and processes the request in memory.
-
-### 2. Start the frontend
-
-In another terminal:
-
 ```powershell
-cd frontend
+cd C:\rdr\frontend
 npm ci
 npm run dev
 ```
 
-Open <http://127.0.0.1:5173>. Vite proxies `/api` requests to the API on port 8001. Use **Load demo** to inspect the workflow; those prices and example mutual-fund constituents are illustrative, not current market data or real fund disclosures.
+Open <http://127.0.0.1:5173>. API documentation is at <http://127.0.0.1:8001/docs>. The Vite development server proxies `/api` to port 8001. Enter the same management token in **Data management**. It is kept in React memory and sent only to protected mutation endpoints.
 
-## Portfolio JSON
+## Demonstrate the full pipeline without a real dataset
 
-Provide a JSON array. Direct holdings use quantity and price; mutual-fund `price` is the INR NAV and `quantity` is the number of units. Add `constituents` as fractional weights (0 to 1) of the INR NAV for look-through sector, currency, overlap, and stress calculations. Constituent values remain in INR; their currency tag affects FX exposure but does not convert the already INR-valued fund NAV again. Constituents not listed are reported as `Other` rather than assumed to be a known sector or asset.
+1. Open **Data management**, enter the management token, and click **Load synthetic sample**. This loads two fictional schemes, 15 dated monthly snapshots per scheme, and fictional market observations into a separate `synthetic` data class.
+2. Open **Fund explorer** and select a synthetic fund. Inspect the disclosed positions and changes.
+3. Open **Evaluation**, choose **Synthetic sample** as the training dataset and the monthly period, and click **Train and evaluate**. This trains a real scikit-learn model **on synthetic records only** and evaluates the final distinct cutoff as a holdout.
+4. Open **Predictions**, rank candidates, and click a company name to inspect its cutoff-dated inputs and supporting signals. Search and sorting preserve the original model rank.
 
-```json
-[
-  {
-    "type": "equity",
-    "symbol": "TCS",
-    "quantity": 10,
-    "price": 3000,
-    "currency": "INR",
-    "sector": "Information Technology",
-    "source_url": "https://example.org/holding-source"
-  },
-  {
-    "type": "mf",
-    "symbol": "Example Fund",
-    "quantity": 200,
-    "price": 50,
-    "constituents": [
-      { "symbol": "TCS", "weight": 0.15, "sector": "Information Technology" },
-      { "symbol": "HDFC Bank", "weight": 0.10, "sector": "Banking" }
-    ]
-  },
-  {
-    "type": "us_stock",
-    "symbol": "AAPL",
-    "quantity": 5,
-    "price": 150,
-    "currency": "USD",
-    "sector": "Technology"
-  }
-]
+Synthetic evaluation numbers verify the code path; they do not measure predictive performance in Indian markets. No genuine model is bundled or pretrained.
+
+## Import real disclosures
+
+The first real-data path is a **user-normalized UTF-8 CSV import**. Download a public AMC or AMFI statement yourself, preserve its URL and publication date, and convert its equity holdings for a single scheme and report date into:
+
+```csv
+isin,company,weight,units,market_value,ticker,sector,industry
+INE000A01010,Example Company,4.25,120000,55000000,EXAMPLE,Industrials,Capital Goods
 ```
 
-Types: `equity`, `mf`, `us_stock`, `etf`, and `debt`. Optional fields include `asset_class` (`Equity`, `Debt`, or `Other`), mutual-fund `amc`/`scheme_code`, and `source_url` (HTTP/HTTPS only). The analysis request also accepts `scenario` fields `equityShockPercent` and `usdInrChange`, plus `usd_inr_rate` (INR per USD). The frontend defaults to an explicitly user-editable rate of 83.5; it is not a live quote.
+`isin`, `company`, and `weight` (percentage, 0–100) are required. The other columns are optional; `units` are needed to distinguish accumulation from a mere weight increase. Upload one CSV per scheme per report date. Enter a stable scheme ID, exact scheme/AMC names, report date, **actual publication date**, public source URL, and attest whether the source represents a full comparable statement. Statements totaling under 90% weight are marked incomplete even if attested; totals over 101% are rejected. Duplicate ISINs, ambiguous ISIN/company names, and conflicting tickers are rejected. ISIN validation checks Indian format only, not the checksum or exchange registry. Originals are retained under `backend/data/uploads/` by SHA-256. Imports are classified `user_import`; the application does not automatically verify an uploaded file against its URL.
 
-## Analysis and sources
+For market observations, import a UTF-8 CSV:
 
-- Exposure percentages are normalized to 100% across each allocation view.
-- A fund overlap is reported only when the same constituent appears in at least two supplied funds. Its weights are relative to the total portfolio value.
-- Equity shock applies to equity-class exposures. Currency shock applies to USD exposures and includes the equity/FX interaction.
-- The deterministic explanation is generated from the calculated figures. Source links are shown only when supplied by the user; no external evidence is fabricated.
-- The API does not persist the submitted portfolio. The legacy SEC tracker tables/endpoints are not used by the active portfolio analysis workflow.
-- This MVP does not fetch AMFI/CAMS constituents, prices, RBI FX rates, or external research. It has no AI/LLM, ML alerts, user accounts, or Account Aggregator connection.
+```csv
+date,isin,company,close,adjusted_close,volume,ticker,sector,industry
+2024-01-31,INE000A01010,Example Company,750.5,748.3,1234567,EXAMPLE,Industrials,Capital Goods
+```
 
-## Validate
+`date`, `isin`, `company`, `close`, and `volume` are required. Dates and rows are validated; duplicate observations are rejected. Adjusted close is used for returns when supplied, otherwise raw close is used and the evidence notes that limitation. No live price API is called. `backend/app/ingestion.py` defines replaceable holdings and market provider protocols with working user CSV adapters. There is no automatic corporate-action, symbol-change, calendar, market/sector-index, or survivorship adjustment.
+
+Public company events can be imported with `POST /api/v1/events` and then optionally extracted through `POST /api/v1/events/{id}/extract`. The latter is server side only. Without configured LLM credentials, events and all other workflows still work; extraction returns a clear configuration error. Facts and evidence must be verbatim substrings of the supplied excerpt. LLM output remains separate from original evidence.
+
+### Source availability checked
+
+- [AMFI Portfolio Disclosure](https://www.amfiindia.com/online-center/portfolio-disclosure) offers a disclosure selection interface. [AMFI scheme-wise disclosure](https://www.amfiindia.com/otherdata/scheme-wise-disclosure) is a separate quarterly selection view. These were checked as web pages; no programmatic historical download was tested.
+- [AMFI-hosted scheme disclosure text](https://portal.amfiindia.com/spages/12306.pdf) describes monthly portfolio publication with ISIN on AMC and AMFI sites. Format and historical availability vary by AMC.
+- [AMFI Monthly](https://www.amfiindia.com/research-information/amfi-monthly) publishes industry reports, which are **not** the same as scheme-level constituents.
+
+No official holdings file, NSE/BSE feed, market API, news feed, or hosted LLM endpoint was imported or exercised in this repository. The normalized import route and synthetic path were tested locally. Do not label imported data as official without independently checking the disclosure.
+
+## Labels, features, and evaluation
+
+For each scheme, the label builder pairs consecutive valid monthly disclosures, or the latest available disclosure in each calendar quarter. Monthly gaps must be 20–45 days; quarterly gaps 70–105 days. The earlier statement must have been published before the next report date. A candidate must be known through an already published holding or market observation at the cutoff. A new addition is absent in the earlier complete snapshot and present in the next complete snapshot at or above the chosen materiality threshold (default 0.1% weight). Verified absence is negative. Increased **units** of an existing holding produce `accumulation`; disappearance produces `exit`. Incomplete, missing, incomparable, or previously unknown cases are `unknown`, never negative. A weight increase alone is not treated as a buy.
+
+Features include fund sector/industry weight preferences, concentration, prior observed additions, trailing market returns, volatility and volume ratio, and availability flags. Event direction enters the full model only if a validated extraction was processed by the cutoff. This strict cutoff means events imported and extracted today cannot retroactively enhance an old backtest. The candidate universe is restricted to securities known by the cutoff in the same data class.
+
+`POST /api/v1/training-runs` fits a scikit-learn logistic classifier with preprocessing fitted on earlier dates only. At least four distinct comparable cutoff periods and both positive and negative training cases are required. Earlier dates are evaluated in expanding-window walk-forward folds; the final cutoff is held out independently. It compares a historical addition-frequency baseline, fund sector/industry preference baseline, a holdings+market model, and a full event model only when point-in-time event signals exist in both training and holdout data. Metrics are precision@5, recall@5, and average precision. Individual dated folds are available at `/api/v1/backtests`; the final holdout is shown separately. Probabilities are not calibrated, so Brier/calibration metrics and likelihood claims are intentionally absent. Performance across funds/sectors and survivorship bias are not yet robustly quantified. Artifacts and metrics are versioned under `backend/data/models/` and SQLite. Evidence includes signed logistic feature contributions to the model logit; they do not establish causality.
+
+## Architecture and API
+
+The frontend separates typed API contracts (`domain.ts`), request/error handling (`api.ts`), cancellable resource loading and actions (`hooks/`), shared navigation/tables/forms (`components/`), and six task pages (`pages/`). Navigation uses native links and a modal fund library on mobile. A single stylesheet supplies the green palette, spacing, controls, tables, and responsive layouts. There are no continuous canvas effects or external font requests. See [the implementation audit](docs/implementation-audit.md) for the guide analysis and decisions.
+
+### Publication-aware model version
+
+New runs use `logistic-v2`. Each validation/holdout split excludes training examples whose **target statement was not yet published at the evaluation cutoff**. Readiness uses the same availability and class checks as training. Predictions also check label availability at their cutoff and refuse a latest incomplete statement instead of falling back to older positions.
+
+Existing `logistic-v1` runs remain viewable with a legacy warning. They are excluded from new rankings; **retrain each dataset and period** before generating new results. Prediction responses include `published_at` and `generated_at` separately from report date and information cutoff. Backtest responses include `run_id`; the interface always requests an explicit run.
+
+One React/Vite entrypoint, `frontend/src/main.tsx` → `App.tsx`, calls the one FastAPI entrypoint `backend/app/main.py` under `/api/v1`. SQLite storage lives in `backend/app/db.py`; imports in `ingestion.py`; features, labels, models, and ranking in `ml.py`; optional LLM extraction in `signals.py`. The prior Portfolio Lens, portfolio-risk API, SEC 13F tracker, and competing frontend modules were retired.
+
+Read endpoints: `/health`, `/api/v1/overview`, `/funds`, `/funds/{id}`, `/identifiers`, `/market`, `/events`, `/readiness`, `/training-runs`, `/backtests`, `/predictions/{fund}`, `/evidence/{fund}/{isin}`. Protected write endpoints: `/api/v1/imports/holdings`, `/imports/market`, `/identifiers/{isin}` (PUT), `/events`, `/events/{id}/extract`, `/training-runs`, `/demo/load`. See `/docs` for fields. Protected endpoints require `X-Admin-Token` equal to server-side `RISKORA_ADMIN_TOKEN`; if unset, management actions are disabled. Uploads have a 5 MB/read and 20,000-row limit. Source URLs are stored as provenance and are never fetched by the server.
+
+## Configuration
+
+Copy `backend/.env.example` as a reference and set variables in the backend process environment. The application does not auto-load a `.env` file.
+
+| Variable | Purpose |
+| --- | --- |
+| `RISKORA_ADMIN_TOKEN` | Required for mutations; choose a long random secret. |
+| `RISKORA_DB` | SQLite path; default `backend/data/riskora.sqlite3`. |
+| `RISKORA_UPLOAD_DIR` | Original CSV storage; default `backend/data/uploads`. |
+| `CORS_ORIGINS` | Comma-separated allowed browser origins. |
+| `LLM_BASE_URL` | Optional OpenAI-compatible HTTPS endpoint root; `/chat/completions` is appended. |
+| `LLM_API_KEY` | Optional server-only inference key. |
+| `LLM_MODEL` | Optional model ID. |
+
+The LLM request uses JSON mode. A compatible Neysa endpoint can be configured if it implements the same route and response shape. Neither Neysa nor any other hosted endpoint was tested here.
+
+## Verify
 
 ```powershell
-python -m pytest institutional_predictor\tests -q
-cd frontend
+cd C:\rdr\backend
+python -m pytest -q
+cd ..\frontend
 npm test
+npm run lint
+npm run format:check
 npm run build
 ```
 
-## Architecture
-
-```mermaid
-graph LR
-  User[User] --> UI[React portfolio workspace]
-  UI -->|JSON holding inputs + scenario| API[FastAPI /api/analyze]
-  API --> Engine[Deterministic risk calculations]
-  Engine -->|One-request result; not persisted| UI
-```
+Known limitations: disclosures must be manually normalized from XLSX/PDF; completeness is partly user attested; there is no automatic AMC/AMFI discovery, price/news ingestion, corporate-action audit, probability calibration, continuous background refresh, or credible real-data backtest without imported historical disclosures. Local SQLite and a single management token suit a local demonstration, not multi-user production deployment.
