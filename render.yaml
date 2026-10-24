@@ -1,0 +1,20 @@
+services:
+  - type: web
+    name: riskora-demo
+    runtime: docker
+    plan: free
+    region: singapore
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /health
+    envVars:
+      - key: RISKORA_ADMIN_TOKEN
+        sync: false
+      - key: RISKORA_DB
+        value: /tmp/riskora/riskora.sqlite3
+      - key: RISKORA_UPLOAD_DIR
+        value: /tmp/riskora/uploads
+      - key: RISKORA_AUTO_LOAD_SYNTHETIC
+        value: "true"
+      - key: RISKORA_AUTO_TRAIN_SYNTHETIC
+        value: "true"

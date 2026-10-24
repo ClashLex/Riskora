@@ -1,6 +1,6 @@
 # Host Riskora live
 
-This guide deploys the current repository on **one Ubuntu VPS** with a domain name. Caddy serves the built React site over HTTPS and forwards `/api/*` to a local FastAPI process. SQLite, imported CSVs, and saved models stay on the VPS's persistent disk. This is suitable for a small, read-only public demo with one trusted operator; the app has one shared management token rather than user accounts.
+This guide deploys the current repository on **one Ubuntu VPS** with a domain name. Caddy serves the built React site over HTTPS and forwards `/api/*` to a local FastAPI process. SQLite, imported CSVs, and saved models stay on the VPS's persistent disk. This is suitable for a small, read-only public demo with one trusted operator; the app has one shared management token rather than user accounts. For a temporary one-service demo, see the [Render guide](DEPLOY-RENDER-SIMPLE.md).
 
 ```text
 Browser → HTTPS/Caddy → frontend/dist

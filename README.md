@@ -10,7 +10,7 @@ The prototype accepts normalized, attributed disclosures and optional market obs
 
 **Stack:** React 19, TypeScript, Vite, FastAPI, SQLite, scikit-learn, and an optional OpenAI-compatible language-model endpoint for grounded event extraction. See [assumptions and trade-offs](docs/event-submission/assumptions-and-tradeoffs.md) for the choices behind this scope.
 
-For a guided explanation of the screens and data flow, see [how the site works](docs/how-the-site-works.md). To deploy this repository on a single server, see [hosting Riskora live](docs/hosting-live.md).
+For a guided explanation of the screens and data flow, see [how the site works](docs/how-the-site-works.md). For a quick, single-service public demo, see [deploy on Render](docs/DEPLOY-RENDER-SIMPLE.md). For persistent data on your own server, see [hosting Riskora live](docs/hosting-live.md).
 
 ## AIBoomi review package
 
@@ -130,6 +130,8 @@ Copy `backend/.env.example` as a reference and set variables in the backend proc
 | `RISKORA_DB` | SQLite path; default `backend/data/riskora.sqlite3`. |
 | `RISKORA_UPLOAD_DIR` | Original CSV storage; default `backend/data/uploads`. |
 | `CORS_ORIGINS` | Comma-separated allowed browser origins. |
+| `RISKORA_AUTO_LOAD_SYNTHETIC` | When true, seed the clearly labelled fictional sample at startup (demo hosting only). |
+| `RISKORA_AUTO_TRAIN_SYNTHETIC` | When true, create a monthly synthetic evaluation and model at startup if one is missing (demo hosting only). |
 | `LLM_BASE_URL` | Optional OpenAI-compatible HTTPS endpoint root; `/chat/completions` is appended. |
 | `LLM_API_KEY` | Optional server-only inference key. |
 | `LLM_MODEL` | Optional model ID. |
@@ -149,3 +151,7 @@ npm run build
 ```
 
 Known limitations: the supplied ABSL `.xls` can be normalized by `scripts/normalize_absl_xls.py`, but other disclosure layouts and PDFs still need manual conversion; completeness is partly user attested; there is no automatic AMC/AMFI discovery, price/news ingestion, corporate-action audit, probability calibration, continuous background refresh, or credible real-data backtest without more verified historical disclosures. Local SQLite and a single management token suit a local demonstration, not multi-user production deployment.
+
+## One-service public demo
+
+The root `Dockerfile` and `render.yaml` build React and serve it with FastAPI from one URL. The Render free-demo configuration recreates and trains **fictional synthetic data only** on startup. See the [Render deployment guide](docs/DEPLOY-RENDER-SIMPLE.md). Its `/tmp` database, uploads, and models are ephemeral; use [persistent hosting](docs/hosting-live.md) for data you need to keep.

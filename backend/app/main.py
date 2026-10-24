@@ -8,10 +8,12 @@ import os
 import secrets
 import sqlite3
 from datetime import UTC, date, datetime
+from pathlib import Path
 from typing import Literal
 
 from fastapi import Depends, FastAPI, File, Form, Header, HTTPException, Query, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field, HttpUrl, field_validator
 
 from .db import connect, init_db, rows
@@ -60,8 +62,35 @@ class IdentifierReview(BaseModel):
     source_url: HttpUrl
 
 
+def enabled(name: str) -> bool:
+    return os.getenv(name, "").strip().lower() in {"1", "true", "yes", "on"}
+
+
+def bootstrap_synthetic_demo() -> None:
+    if enabled("RISKORA_AUTO_LOAD_SYNTHETIC"):
+        try:
+            logger.info("Synthetic demo bootstrap: %s", load_synthetic_demo())
+        except Exception:
+            logger.exception("Could not initialize the synthetic demo dataset")
+    if enabled("RISKORA_AUTO_TRAIN_SYNTHETIC"):
+        try:
+            with connect() as db:
+                latest = db.execute(
+                    """SELECT artifact_path FROM training_runs WHERE status='complete'
+                    AND source_kind='synthetic' AND horizon='month' AND model_version=?
+                    ORDER BY id DESC LIMIT 1""",
+                    (MODEL_VERSION,),
+                ).fetchone()
+            if latest and latest["artifact_path"] and Path(latest["artifact_path"]).is_file():
+                return
+            logger.info("Synthetic demo training: %s", train("month", 0.1, "synthetic"))
+        except Exception:
+            logger.exception("Could not train the synthetic demo model")
+
+
 def create_app():
     init_db()
+    bootstrap_synthetic_demo()
     app = FastAPI(
         title="Riskora — Indian Mutual Fund Purchase Intelligence",
         version="0.2.0",
@@ -427,6 +456,10 @@ def create_app():
                     (isin, limit + "T23:59:59", scheme["source_kind"]),
                 ),
             }
+
+    frontend_dist = Path(__file__).resolve().parents[2] / "frontend" / "dist"
+    if frontend_dist.is_dir():
+        app.mount("/", StaticFiles(directory=str(frontend_dist), html=True), name="frontend")
 
     return app
 

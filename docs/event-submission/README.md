@@ -20,7 +20,7 @@ scripts/build_pitch_deck.py       Rebuilds the PowerPoint deck
 | GitHub repository and a README explaining the problem, idea, stack, setup, and demo (p. 5) | Root [README](../../README.md) and configured `origin` at <https://github.com/ClashLex/Riskora> | Prepared locally; publish the working tree before submitting the URL |
 | Product demo link: video, hosted app, or presentation showing the prototype in action (p. 5) | [Demo runbook](demo-runbook.md) and local app at `http://127.0.0.1:5173` | Public link or recording still needed |
 | Live demo link (optional, favored; p. 5) | None | Optional, pending deployment if wanted |
-| Pitch deck of at most six slides (pp. 5, 9–10) | [PowerPoint deck](Riskora-pitch-deck.pptx) and [slide source](pitch-deck.md) | Prepared; add real UI screenshots or a recording if available |
+| Pitch deck of at most six slides (pp. 5, 9–10) | [PowerPoint deck](Riskora-pitch-deck.pptx), [slide guide](pitch-deck.md), and local app screenshots | Prepared with six slides, actual UI captures, and timed speaker notes; public demo URL or recording still pending |
 | AI impact statement of at most 200 words (pp. 6, 10) | [AI impact statement](ai-impact-statement.md) | Prepared |
 | Data provenance, attribution, evaluation, limitations (pp. 3–4, 8–10) | [Data and attribution](data-and-attribution.md), root README | Partly prepared; real imported sources require owner review |
 | Team names, roles, contacts (p. 9) | Ansil Muhammed N S and Muhammed Ihsan K I (provided by the owner) | Names recorded; roles and contacts pending |
@@ -45,7 +45,7 @@ Until the timing and organizer requirement are confirmed, this package does **no
 1. Follow the [local setup](../../README.md#start-locally) and [demo runbook](demo-runbook.md) against a clean database.
 2. Verify every claimed source URL, publication date, permission, and asset license before importing real data or submitting screenshots.
 3. Add a public recording or hosted-app URL to the root README. A localhost URL is not a public demo link.
-4. Put real screenshots in the deck if available, while retaining a working live fallback.
+4. Rehearse the live app with the deck's timed speaker notes. Its screenshots were captured locally; keep a working live fallback.
 5. Fill in team and prior-work details above. Decide on a code license with the owner; no open-source license has been assumed.
 6. Publish the intended changes, confirm the GitHub URL opens, and upload the repository URL, deck, AI impact statement, and demo link to the event portal before its deadline.
 
