@@ -2,6 +2,30 @@
 
 Riskora is a local research prototype that ranks stocks that may **newly appear in the next valid disclosed portfolio snapshot** of an Indian equity mutual-fund scheme. A disclosure reports positions at a date; it cannot reveal an order, its execution date, or a manager's intent. Scores are uncalibrated ranking scores, not probabilities or investment advice.
 
+## Problem, users, and solution
+
+Fund portfolio statements are retrospective. A researcher comparing Indian equity mutual-fund disclosures must assemble dated holdings, distinguish a genuinely new position from an existing one, and check what was knowable before the next statement. Riskora is intended for analysts and research teams exploring that question; it has not been validated with paying customers.
+
+The prototype accepts normalized, attributed disclosures and optional market observations, checks comparability and publication dates, trains a point-in-time ranking model, and shows candidate stocks with their supporting inputs and a later-period evaluation. The repository contains a **synthetic demonstration**, not an established prediction service or a verified Indian-market performance claim.
+
+**Stack:** React 19, TypeScript, Vite, FastAPI, SQLite, scikit-learn, and an optional OpenAI-compatible language-model endpoint for grounded event extraction. See [assumptions and trade-offs](docs/event-submission/assumptions-and-tradeoffs.md) for the choices behind this scope.
+
+## AIBoomi review package
+
+| Item | Location or status |
+| --- | --- |
+| GitHub repository | <https://github.com/ClashLex/Riskora> (configured `origin`; local changes need publishing before reviewers see them) |
+| Product demo | [Run the local prototype](#start-locally) with the [three-minute demo script](docs/event-submission/demo-runbook.md). A public app or recording URL has not been supplied. |
+| Pitch deck | [Six-slide PowerPoint deck](docs/event-submission/Riskora-pitch-deck.pptx) and [editable slide content](docs/event-submission/pitch-deck.md) |
+| AI impact statement | [AI impact statement](docs/event-submission/ai-impact-statement.md) (under 200 words) |
+| Submission and provenance | [Handbook alignment and outstanding items](docs/event-submission/README.md) |
+
+**Team:** Ansil Muhammed N S and Muhammed Ihsan K I. Roles and contacts have not been provided.
+
+The event's fresh-build and surprise-element requirements depend on the actual kickoff and organizer assignment. [Prior-work disclosure](docs/event-submission/README.md#prior-work-and-surprise-element) records what still needs owner confirmation. Do not present existing commits or synthetic data as event-built or real-market evidence without that check.
+
+The website uses a white and gray research workspace over a restrained dither background. Fund disclosures, rankings, supporting signals, evaluation, and data management are available in the interface.
+
 ## Start locally
 
 Requires Python 3.11+ and Node.js compatible with Vite 8 (Node 20.19+ or 22.12+). Use two PowerShell terminals.
@@ -19,14 +43,14 @@ npm ci
 npm run dev
 ```
 
-Open <http://127.0.0.1:5173>. API documentation is at <http://127.0.0.1:8001/docs>. The Vite development server proxies `/api` to port 8001. Enter the same management token in **Data management**. It is kept in React memory and sent only to protected mutation endpoints.
+Open <http://127.0.0.1:5173>. API documentation is at <http://127.0.0.1:8001/docs>. The Vite development server proxies `/api` to port 8001. Enter the same management token in **Data management**. It stays in this browser tab's memory and is sent to protected mutation endpoints.
 
 ## Demonstrate the full pipeline without a real dataset
 
 1. Open **Data management**, enter the management token, and click **Load synthetic sample**. This loads two fictional schemes, 15 dated monthly snapshots per scheme, and fictional market observations into a separate `synthetic` data class.
 2. Open **Fund explorer** and select a synthetic fund. Inspect the disclosed positions and changes.
-3. Open **Evaluation**, choose **Synthetic sample** as the training dataset and the monthly period, and click **Train and evaluate**. This trains a real scikit-learn model **on synthetic records only** and evaluates the final distinct cutoff as a holdout.
-4. Open **Predictions**, rank candidates, and click a company name to inspect its cutoff-dated inputs and supporting signals. Search and sorting preserve the original model rank.
+3. Open **Evaluation**, choose **Synthetic sample** and the monthly period, then click **Train and evaluate**. This trains and evaluates on synthetic records only.
+4. Open **Predictions** and rank candidates. Open a company to inspect its cutoff-dated inputs and supporting signals.
 
 Synthetic evaluation numbers verify the code path; they do not measure predictive performance in Indian markets. No genuine model is bundled or pretrained.
 
@@ -70,7 +94,7 @@ Features include fund sector/industry weight preferences, concentration, prior o
 
 ## Architecture and API
 
-The frontend separates typed API contracts (`domain.ts`), request/error handling (`api.ts`), cancellable resource loading and actions (`hooks/`), shared navigation/tables/forms (`components/`), and six task pages (`pages/`). Navigation uses native links and a modal fund library on mobile. A single stylesheet supplies the green palette, spacing, controls, tables, and responsive layouts. There are no continuous canvas effects or external font requests. See [the implementation audit](docs/implementation-audit.md) for the guide analysis and decisions.
+The frontend entry point mounts `Stage.tsx`, which places the supplied WebGL dither behind the research interface in `App.tsx`. API contracts are in `domain.ts`; request handling is in `api.ts` and `hooks/`; shared controls and tables are in `components/`; the six screens are in `pages/`. The light theme is in `stage.css`. See [the implementation audit](docs/implementation-audit.md) for the earlier interface analysis and decisions.
 
 ### Publication-aware model version
 
@@ -78,7 +102,7 @@ New runs use `logistic-v2`. Each validation/holdout split excludes training exam
 
 Existing `logistic-v1` runs remain viewable with a legacy warning. They are excluded from new rankings; **retrain each dataset and period** before generating new results. Prediction responses include `published_at` and `generated_at` separately from report date and information cutoff. Backtest responses include `run_id`; the interface always requests an explicit run.
 
-One React/Vite entrypoint, `frontend/src/main.tsx` → `App.tsx`, calls the one FastAPI entrypoint `backend/app/main.py` under `/api/v1`. SQLite storage lives in `backend/app/db.py`; imports in `ingestion.py`; features, labels, models, and ranking in `ml.py`; optional LLM extraction in `signals.py`. The prior Portfolio Lens, portfolio-risk API, SEC 13F tracker, and competing frontend modules were retired.
+The React/Vite entry point is `frontend/src/main.tsx` → `Stage.tsx` → `App.tsx`. The FastAPI entry point is `backend/app/main.py` under `/api/v1`. SQLite storage lives in `backend/app/db.py`; imports in `ingestion.py`; features, labels, models, and ranking in `ml.py`; optional LLM extraction in `signals.py`.
 
 Read endpoints: `/health`, `/api/v1/overview`, `/funds`, `/funds/{id}`, `/identifiers`, `/market`, `/events`, `/readiness`, `/training-runs`, `/backtests`, `/predictions/{fund}`, `/evidence/{fund}/{isin}`. Protected write endpoints: `/api/v1/imports/holdings`, `/imports/market`, `/identifiers/{isin}` (PUT), `/events`, `/events/{id}/extract`, `/training-runs`, `/demo/load`. See `/docs` for fields. Protected endpoints require `X-Admin-Token` equal to server-side `RISKORA_ADMIN_TOKEN`; if unset, management actions are disabled. Uploads have a 5 MB/read and 20,000-row limit. Source URLs are stored as provenance and are never fetched by the server.
 

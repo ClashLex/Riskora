@@ -4,26 +4,10 @@ import { act, cleanup, render, renderHook, screen, waitFor, within } from '@test
 import userEvent from '@testing-library/user-event'
 import App from './App'
 import { api } from './api'
+import { DataTable } from './components/ui'
+import PillNav from './components/PillNav'
 import { useResearch } from './hooks/useResearch'
 import { useResource } from './hooks/useResource'
-
-// jsdom does not implement native dialog methods; browser checks cover focus trapping.
-Object.defineProperties(HTMLDialogElement.prototype, {
-  showModal: {
-    configurable: true,
-    writable: true,
-    value() {
-      this.open = true
-    },
-  },
-  close: {
-    configurable: true,
-    writable: true,
-    value() {
-      this.open = false
-    },
-  },
-})
 
 const funds = [
   {
@@ -109,6 +93,10 @@ function fixture(path: string) {
   if (path.endsWith('/overview'))
     return {
       funds: 0,
+      eligible_funds: 0,
+      latest_real_report: null,
+      latest_update: null,
+      training_status: 'not_trained',
       warnings: ['No historical holdings imported.'],
       imported_observations: 0,
       synthetic_observations: 0,
@@ -132,17 +120,6 @@ function fixture(path: string) {
 beforeEach(() => {
   window.history.replaceState(null, '', '/')
   vi.stubGlobal('scrollTo', vi.fn())
-  vi.spyOn(HTMLDialogElement.prototype, 'showModal').mockImplementation(function (
-    this: HTMLDialogElement,
-  ) {
-    this.open = true
-  })
-  vi.spyOn(HTMLDialogElement.prototype, 'close').mockImplementation(function (
-    this: HTMLDialogElement,
-  ) {
-    this.open = false
-    this.dispatchEvent(new Event('close'))
-  })
   vi.stubGlobal(
     'fetch',
     vi.fn(async (input: string) => response(fixture(String(input)))),
@@ -159,7 +136,15 @@ it('keeps semantic navigation, direct links, and management access usable', asyn
   window.history.replaceState(null, '', '/#data-management')
   render(<App />)
   expect(await screen.findByRole('heading', { name: 'Manage data' })).toBeTruthy()
+  const tokenField = screen.getByLabelText('Management token') as HTMLInputElement
+  expect(tokenField.type).toBe('password')
+  await user.click(screen.getByRole('button', { name: 'Show management token' }))
+  expect(tokenField.type).toBe('text')
+  await user.click(screen.getByRole('button', { name: 'Hide management token' }))
+  expect(tokenField.type).toBe('password')
   const nav = screen.getByRole('navigation', { name: 'Main navigation' })
+  const menu = within(nav).queryByRole('button', { name: 'Open menu' })
+  if (menu) await user.click(menu)
   expect(within(nav).getAllByRole('link')).toHaveLength(6)
   expect(screen.getByRole('link', { name: 'Data management' }).getAttribute('aria-current')).toBe(
     'page',
@@ -174,24 +159,101 @@ it('keeps semantic navigation, direct links, and management access usable', asyn
   expect(
     await screen.findByRole('heading', { name: 'Start with a fund’s disclosure history' }),
   ).toBeTruthy()
-  expect(screen.queryByRole('heading', { name: 'Data checks' })).toBeNull()
+  expect(await screen.findByRole('region', { name: 'Disclosure coverage' })).toBeTruthy()
+  expect(screen.getByRole('heading', { name: 'Data checks' })).toBeTruthy()
+  expect(screen.getByText('No historical holdings imported.')).toBeTruthy()
   expect(screen.queryByText('Proof')).toBeNull()
 })
 
-it('filters the fund library and restores focus when the drawer closes', async () => {
-  const user = userEvent.setup()
+it('explains why supporting signals are empty when no funds are loaded', async () => {
+  vi.mocked(fetch).mockImplementation(async (input) =>
+    response(String(input).endsWith('/funds') ? [] : fixture(String(input))),
+  )
+  window.history.replaceState(null, '', '/#evidence')
   render(<App />)
-  await screen.findByText('Imported Fund')
-  await user.type(screen.getByRole('searchbox', { name: 'Find a fund' }), 'sample')
-  expect(screen.queryByText('Imported Fund')).toBeNull()
-  await user.click(screen.getByRole('button', { name: /Sample Fund/ }))
+
+  expect(await screen.findByRole('heading', { name: 'No supporting signals yet' })).toBeTruthy()
+  expect(screen.getByRole('button', { name: 'Manage data' })).toBeTruthy()
+
+  act(() => {
+    window.history.replaceState(null, '', '/#predictions')
+    window.dispatchEvent(new Event('hashchange'))
+  })
+  expect(await screen.findByRole('heading', { name: 'No fund data to rank' })).toBeTruthy()
+})
+
+it('closes the mobile menu when navigation expands and does not reopen it on collapse', async () => {
+  const user = userEvent.setup()
+  const items = [{ label: 'Overview', href: '#overview' }]
+  const { rerender } = render(<PillNav items={items} collapse="always" intro={false} />)
+
+  await user.click(screen.getByRole('button', { name: 'Open menu' }))
+  expect(screen.getByRole('button', { name: 'Close menu' }).getAttribute('aria-expanded')).toBe(
+    'true',
+  )
+
+  await user.click(screen.getByRole('button', { name: 'Close menu' }))
+  expect(screen.queryByRole('link', { name: 'Overview' })).toBeNull()
+  await user.click(screen.getByRole('button', { name: 'Open menu' }))
+
+  rerender(<PillNav items={items} collapse="never" intro={false} />)
+  await waitFor(() => expect(screen.queryByRole('button', { name: 'Close menu' })).toBeNull())
+
+  rerender(<PillNav items={items} collapse="always" intro={false} />)
+  expect(screen.getByRole('button', { name: 'Open menu' }).getAttribute('aria-expanded')).toBe(
+    'false',
+  )
+})
+
+it('shows coverage on Overview and keeps the fund library in Fund explorer', async () => {
+  const user = userEvent.setup()
+  vi.mocked(fetch).mockImplementation(async (input) =>
+    response(
+      String(input).endsWith('/overview')
+        ? {
+            funds: 2,
+            observations: 25,
+            securities: 10,
+            eligible_funds: 2,
+            imported_observations: 10,
+            synthetic_observations: 15,
+            latest_real_report: '2024-03-31',
+            latest_update: '2024-04-08T00:00:00Z',
+            training_status: 'ready',
+            warnings: [],
+          }
+        : fixture(String(input)),
+    ),
+  )
+  render(<App />)
+  const coverage = await screen.findByRole('region', { name: 'Disclosure coverage' })
+  expect(within(coverage).getByText('Imported disclosures')).toBeTruthy()
+  expect(within(coverage).getByText('10')).toBeTruthy()
+  expect(within(coverage).getByText('Sample disclosures')).toBeTruthy()
+  expect(within(coverage).getByText('15')).toBeTruthy()
+  expect(screen.queryByRole('table')).toBeNull()
+  expect(screen.queryByRole('region', { name: 'Recent funds' })).toBeNull()
+  expect(screen.queryByRole('complementary', { name: 'Fund library' })).toBeNull()
+  await user.click(screen.getByRole('button', { name: 'Explore funds' }))
   expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Fund disclosures')
-  const toggle = screen.getByRole('button', { name: 'Open fund library' })
-  await user.click(toggle)
-  expect(screen.getByRole('dialog', { name: 'Fund library' })).toBeTruthy()
-  await user.click(screen.getByRole('button', { name: 'Close fund library' }))
-  expect(toggle.getAttribute('aria-expanded')).toBe('false')
-  expect(document.activeElement).toBe(toggle)
+  expect(screen.getByRole('complementary', { name: 'Fund library' })).toBeTruthy()
+})
+
+it('shows the fund library only in the explorer and filters its funds', async () => {
+  const user = userEvent.setup()
+  window.history.replaceState(null, '', '/#fund-explorer')
+  render(<App />)
+  const library = screen.getByRole('complementary', { name: 'Fund library' })
+  await within(library).findByRole('button', { name: /Imported Fund/ })
+  await user.type(within(library).getByRole('searchbox', { name: 'Find a fund' }), 'sample')
+  expect(within(library).queryByRole('button', { name: /Imported Fund/ })).toBeNull()
+  const sample = within(library).getByRole('button', { name: /Sample Fund/ })
+  await user.click(sample)
+  expect(sample.getAttribute('aria-pressed')).toBe('true')
+  expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Fund disclosures')
+  window.history.pushState(null, '', '#overview')
+  act(() => window.dispatchEvent(new HashChangeEvent('hashchange')))
+  expect(screen.queryByRole('complementary', { name: 'Fund library' })).toBeNull()
 })
 
 it('selects evaluation runs by dataset and horizon and never fetches the global latest run', async () => {
@@ -246,6 +308,46 @@ it('searches and sorts candidates while preserving original rank, then retries s
     await screen.findByText('No company events available for this stock and cutoff.'),
   ).toBeTruthy()
   expect(screen.getByRole('heading', { name: 'Alpha Bank' })).toBeTruthy()
+})
+
+it('shows complete records and usable sorting on narrow screens', async () => {
+  vi.stubGlobal(
+    'matchMedia',
+    vi.fn(() => ({ matches: true, addEventListener: vi.fn(), removeEventListener: vi.fn() })),
+  )
+  const user = userEvent.setup()
+  render(
+    <DataTable
+      caption="Fund coverage"
+      rows={[
+        { id: 'z', name: 'Zebra Fund', count: 3 },
+        { id: 'a', name: 'Alpha Fund', count: 9 },
+      ]}
+      rowKey={(row) => row.id}
+      search={(row) => row.name}
+      columns={[
+        { key: 'name', label: 'Fund', render: (row) => row.name, sort: (row) => row.name },
+        {
+          key: 'count',
+          label: 'Disclosures',
+          render: (row) => row.count,
+          sort: (row) => row.count,
+        },
+      ]}
+    />,
+  )
+  expect(screen.queryByRole('table')).toBeNull()
+  const records = screen.getByRole('list', { name: 'Fund coverage' })
+  expect(within(records).getAllByRole('listitem')[0].textContent).toContain('Zebra Fund')
+  expect(within(records).getAllByRole('listitem')[0].textContent).toContain('Disclosures3')
+  expect(screen.queryByRole('button', { name: 'Sort descending' })).toBeNull()
+  await user.selectOptions(screen.getByLabelText('Sort fund coverage'), 'name')
+  expect(within(records).getAllByRole('listitem')[0].textContent).toContain('Alpha Fund')
+  await user.click(screen.getByRole('button', { name: 'Sort descending' }))
+  expect(within(records).getAllByRole('listitem')[0].textContent).toContain('Zebra Fund')
+  await user.type(screen.getByRole('searchbox', { name: 'Search fund coverage' }), 'alpha')
+  expect(within(records).getAllByRole('listitem')).toHaveLength(1)
+  expect(within(records).getByText('Alpha Fund')).toBeTruthy()
 })
 
 it('discards a ranking that finishes after the fund selection changes', async () => {

@@ -8,6 +8,7 @@ import {
   ErrorState,
   Facts,
   Loading,
+  MetricStrip,
   Section,
   SourceNotice,
 } from '../components/ui'
@@ -24,7 +25,7 @@ export function PredictionsPage({
   const rows =
     result?.candidates.map((candidate, index) => ({ ...candidate, rank: index + 1 })) || []
   return (
-    <>
+    <div className="page-design page-predictions">
       <div className="toolbar">
         <FundSelect research={r} />
         <HorizonSelect research={r} />
@@ -44,6 +45,13 @@ export function PredictionsPage({
       {ranking && <Loading>Building inputs and ranking candidates for the selected fund…</Loading>}
       {result ? (
         <>
+          <MetricStrip
+            items={[
+              ['Ranked candidates', result.candidates.length],
+              ['Disclosure period', periodName(result.horizon)],
+              ['Information cutoff', dateLabel(result.cutoff)],
+            ]}
+          />
           <div className="prediction-context">
             <Section
               title={`${r.selectedFund?.name} · ${periodName(result.horizon)}`}
@@ -125,7 +133,13 @@ export function PredictionsPage({
         !r.fundsResource.loading &&
         !r.runsResource.loading && (
           <Empty
-            title={r.canRank ? 'Ready to rank candidates' : 'A matching trained model is required'}
+            title={
+              !r.funds.length
+                ? 'No fund data to rank'
+                : r.canRank
+                  ? 'Ready to rank candidates'
+                  : 'A matching trained model is required'
+            }
           >
             <p>
               {!r.funds.length
@@ -148,6 +162,6 @@ export function PredictionsPage({
           </Empty>
         )
       )}
-    </>
+    </div>
   )
 }

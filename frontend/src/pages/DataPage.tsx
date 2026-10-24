@@ -7,7 +7,7 @@ export function DataPage({ research: r }: { research: Research }) {
   const [kind, setKind] = useState<'holdings' | 'market'>('holdings')
   const disabled = !!r.pending || !r.token
   return (
-    <>
+    <div className="page-design page-data">
       <Section
         title="Management access"
         description="Imports, identifier reviews, and training require the server’s management token. It stays in this browser tab’s memory."
@@ -239,6 +239,6 @@ export function DataPage({ research: r }: { research: Research }) {
           {r.pending === 'Loading synthetic sample' ? 'Loading sample…' : 'Load synthetic sample'}
         </button>
       </Section>
-    </>
+    </div>
   )
 }

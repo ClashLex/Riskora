@@ -23,7 +23,7 @@ export function EvaluationPage({ research: r }: { research: Research }) {
     ([name, values]) => ({ name, ...values }),
   )
   return (
-    <>
+    <div className="page-design page-evaluation">
       <div className="toolbar">
         <label>
           Training dataset
@@ -256,6 +256,6 @@ export function EvaluationPage({ research: r }: { research: Research }) {
           </Section>
         </>
       )}
-    </>
+    </div>
   )
 }

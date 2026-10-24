@@ -24,18 +24,35 @@ export function EvidencePage({
     evidence = r.evidence.data
   if (!candidate || !prediction)
     return (
-      <Empty title="Choose a ranked company">
-        <p>
-          Open a company in Predictions to inspect its model inputs, source documents, and available
-          history.
-        </p>
-        <button className="primary" onClick={() => navigate('Predictions')}>
-          Open predictions
-        </button>
-      </Empty>
+      <div className="page-design page-evidence">
+        <ErrorState message={r.fundsResource.error} retry={r.refresh} />
+        {r.fundsResource.loading ? (
+          <Loading>Checking available funds…</Loading>
+        ) : !r.funds.length ? (
+          <Empty title="No supporting signals yet">
+            <p>
+              There are no fund disclosures to rank. Import statements or load the labelled sample
+              in Data management, then rank a fund in Predictions.
+            </p>
+            <button className="primary" onClick={() => navigate('Data management')}>
+              Manage data
+            </button>
+          </Empty>
+        ) : (
+          <Empty title="Choose a ranked company">
+            <p>
+              Open a company in Predictions to inspect its model inputs, source documents, and
+              available history.
+            </p>
+            <button className="primary" onClick={() => navigate('Predictions')}>
+              Open predictions
+            </button>
+          </Empty>
+        )}
+      </div>
     )
   return (
-    <>
+    <div className="page-design page-evidence">
       <button className="text-button back-link" onClick={() => navigate('Predictions')}>
         ← Back to ranked candidates
       </button>
@@ -170,6 +187,6 @@ export function EvidencePage({
           </Section>
         </>
       )}
-    </>
+    </div>
   )
 }

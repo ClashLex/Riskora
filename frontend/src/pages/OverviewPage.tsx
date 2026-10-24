@@ -1,7 +1,11 @@
+import { IconArrowRight, IconArrowUpRight } from '@tabler/icons-react'
 import type { Page } from '../domain'
-import { dateLabel, sourceName } from '../domain'
+import { dateLabel } from '../domain'
 import type { Research } from '../hooks/useResearch'
-import { DataTable, Empty, ErrorState, Facts, Loading, Section } from '../components/ui'
+import { Empty, ErrorState, Loading } from '../components/ui'
+import { MagicBento } from '../components/MagicBento'
+
+const count = (value: number) => value.toLocaleString('en-IN')
 
 export function OverviewPage({
   research: r,
@@ -12,118 +16,116 @@ export function OverviewPage({
 }) {
   const summary = r.overview.data
   return (
-    <>
+    <div className="page-design page-overview">
       <ErrorState message={r.overview.error || r.fundsResource.error} retry={r.refresh} />
       {r.overview.loading && <Loading>Loading disclosure coverage…</Loading>}
-      {!summary ? null : (
+      {summary && (
         <>
-          {!summary.funds ? (
-            <Empty title="Start with a fund’s disclosure history">
-              <p>
-                Import dated portfolio statements, add market observations, then check whether there
-                is enough history to train and evaluate a model.
-              </p>
-              <button className="primary" onClick={() => navigate('Data management')}>
-                Import disclosures
-              </button>
-              <p className="muted">
-                A clearly labelled synthetic sample is also available in Data management.
-              </p>
-            </Empty>
-          ) : (
-            <>
-              <Section title="Disclosure coverage">
-                <Facts
-                  items={[
-                    ['Imported disclosures', summary.imported_observations],
-                    ['Synthetic sample disclosures', summary.synthetic_observations],
-                    [
-                      'Funds with a complete statement',
-                      `${summary.eligible_funds} of ${summary.funds}`,
-                    ],
-                    ['Latest imported report date', dateLabel(summary.latest_real_report)],
-                    ['Last holdings import', dateLabel(summary.latest_update, true)],
-                  ]}
-                />
-              </Section>
-              <Section title="Funds">
-                <DataTable
-                  caption="Fund coverage"
-                  rows={r.funds}
-                  rowKey={(fund) => fund.id}
-                  search={(fund) => `${fund.name} ${fund.amc}`}
-                  columns={[
-                    {
-                      key: 'name',
-                      label: 'Fund',
-                      sort: (fund) => fund.name,
-                      render: (fund) => (
-                        <button
-                          className="text-button"
-                          onClick={() => {
-                            r.chooseFund(fund.id)
-                            navigate('Fund explorer')
-                          }}
-                        >
-                          {fund.name}
-                        </button>
-                      ),
-                    },
-                    {
-                      key: 'source',
-                      label: 'Data source',
-                      render: (fund) => sourceName(fund.source_kind),
-                    },
-                    {
-                      key: 'count',
-                      label: 'Disclosures',
-                      numeric: true,
-                      sort: (fund) => fund.observations,
-                      render: (fund) => fund.observations,
-                    },
-                    {
-                      key: 'date',
-                      label: 'Latest report',
-                      sort: (fund) => fund.latest_report_date,
-                      render: (fund) => dateLabel(fund.latest_report_date),
-                    },
-                  ]}
-                />
-              </Section>
-            </>
-          )}
-          {summary.funds > 0 && (
-            <>
-              <Section title="Data checks">
-                {summary.warnings.length ? (
-                  <ul className="check-list">
-                    {summary.warnings.map((warning) => (
-                      <li key={warning}>{warning}</li>
-                    ))}
-                  </ul>
-                ) : (
-                  <p>
-                    No import warnings reported. This does not verify the accuracy of the supplied
-                    sources.
-                  </p>
-                )}
-              </Section>
-              <aside className="method-note">
-                <h2>How a new position is identified</h2>
+          {!summary.funds && (
+            <div className="overview-start">
+              <Empty title="Start with a fund’s disclosure history">
                 <p>
-                  The target is a holding that is absent from a complete disclosure and appears at a
-                  weight of at least 0.1% in a later disclosure. A report reveals a position, not
-                  the date or reason for a trade.
+                  This workspace has no fund statements yet. Add dated portfolio disclosures to
+                  explore holdings and check whether there is enough history for a model.
                 </p>
-                <p>Review later-period evaluation before interpreting a ranking.</p>
-                <button className="text-button" onClick={() => navigate('Evaluation')}>
-                  Review evaluation
+                <button className="primary" onClick={() => navigate('Data management')}>
+                  Manage data
                 </button>
+                <p className="muted">
+                  You can also load a clearly labelled synthetic sample in Data management.
+                </p>
+              </Empty>
+              <aside className="start-guide" aria-label="Data needed for a ranking">
+                <h2>Before you can rank candidates</h2>
+                <ol>
+                  <li>Import complete fund statements with report and publication dates.</li>
+                  <li>Optionally add market prices for more complete signals.</li>
+                  <li>Check training readiness and review the later period evaluation.</li>
+                </ol>
               </aside>
-            </>
+            </div>
           )}
+          {!!summary.funds && (
+            <div className="overview-actions">
+              <button className="primary" onClick={() => navigate('Fund explorer')}>
+                Explore funds <IconArrowRight size={17} aria-hidden="true" />
+              </button>
+              <button className="secondary" onClick={() => navigate('Evaluation')}>
+                Review evaluation
+              </button>
+            </div>
+          )}
+          <section className="overview-coverage" aria-labelledby="coverage-heading">
+            <div className="overview-section-title">
+              <h2 id="coverage-heading">Disclosure coverage</h2>
+              {summary.latest_real_report && (
+                <p>Latest imported report: {dateLabel(summary.latest_real_report)}</p>
+              )}
+            </div>
+            <MagicBento
+              label="Disclosure coverage figures"
+              items={[
+                {
+                  id: 'funds',
+                  label: 'Funds tracked',
+                  value: count(summary.funds),
+                  colSpan: 2,
+                },
+                {
+                  id: 'eligible',
+                  label: 'With a complete statement',
+                  value: count(summary.eligible_funds),
+                },
+                {
+                  id: 'imports',
+                  label: 'Imported disclosures',
+                  value: count(summary.imported_observations),
+                },
+                {
+                  id: 'sample',
+                  label: 'Sample disclosures',
+                  value: count(summary.synthetic_observations),
+                  colSpan: 2,
+                },
+              ]}
+            />
+            {summary.latest_update && (
+              <p className="overview-update">
+                Last holdings import {dateLabel(summary.latest_update, true)}
+              </p>
+            )}
+          </section>
+
+          <div className="overview-bottom">
+            <section className="overview-checks" aria-labelledby="checks-heading">
+              <h2 id="checks-heading">Data checks</h2>
+              {summary.warnings.length ? (
+                <ul className="check-list">
+                  {summary.warnings.map((warning) => (
+                    <li key={warning}>{warning}</li>
+                  ))}
+                </ul>
+              ) : (
+                <p>
+                  No import warnings reported. Supplied sources have not been independently
+                  verified.
+                </p>
+              )}
+            </section>
+            <aside className="overview-method">
+              <h2>What counts as new?</h2>
+              <p>
+                A holding absent from a complete disclosure that later appears at 0.1% weight or
+                more. Only complete, comparable statements establish absence. Review the later
+                period evaluation before interpreting a ranking.
+              </p>
+              <button className="text-button" onClick={() => navigate('Evaluation')}>
+                Read the evaluation <IconArrowUpRight size={16} aria-hidden="true" />
+              </button>
+            </aside>
+          </div>
         </>
       )}
-    </>
+    </div>
   )
 }

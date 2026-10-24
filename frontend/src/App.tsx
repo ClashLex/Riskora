@@ -36,15 +36,7 @@ export default function App() {
     window.scrollTo?.({ top: 0, behavior: 'instant' })
   }
   return (
-    <Workspace
-      page={page}
-      navigate={navigate}
-      funds={research.funds}
-      fundId={research.fundId}
-      selectFund={research.chooseFund}
-      refresh={research.refresh}
-      busy={!!research.pending}
-    >
+    <Workspace page={page} navigate={navigate} refresh={research.refresh} busy={!!research.pending}>
       {research.error && (
         <div ref={errorSummary} className="alert error" role="alert" tabIndex={-1}>
           <p>{research.error}</p>

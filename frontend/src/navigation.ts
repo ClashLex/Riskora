@@ -11,38 +11,39 @@ import type { Page } from './domain'
 export const pages = [
   {
     name: 'Overview',
-    short: 'Home',
     title: 'Research overview',
+    description: 'A quick read of disclosure coverage and what to do next.',
     icon: IconLayoutDashboard,
   },
   {
     name: 'Fund explorer',
-    short: 'Funds',
     title: 'Fund disclosures',
+    description: 'Compare report dates and inspect holdings in each statement.',
     icon: IconChartPie,
   },
   {
     name: 'Predictions',
-    short: 'Predict',
     title: 'Candidate rankings',
+    description:
+      'Choose a fund and period to rank possible new positions. Scores are relative, not probabilities.',
     icon: IconTargetArrow,
   },
   {
     name: 'Evidence',
-    short: 'Signals',
     title: 'Supporting signals',
+    description: 'Trace score inputs, contributions, and sources available by the cutoff.',
     icon: IconFileSearch,
   },
   {
     name: 'Evaluation',
-    short: 'Results',
     title: 'Model evaluation',
+    description: 'Check training readiness and later period results before using a ranking.',
     icon: IconChartBar,
   },
   {
     name: 'Data management',
-    short: 'Data',
     title: 'Manage data',
+    description: 'Import dated disclosures, review identifiers, and keep samples separate.',
     icon: IconDatabaseImport,
   },
 ] as const

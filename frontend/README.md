@@ -1,13 +1,9 @@
 # Riskora frontend
 
-Canonical frontend: `src/main.tsx` and `src/App.tsx`. Run `npm ci` and `npm run dev`; open <http://127.0.0.1:5173>. Vite proxies `/api` to the FastAPI server on port 8001.
+`src/main.tsx` mounts `src/Stage.tsx`, which places the supplied white and gray dither background behind the research interface in `src/App.tsx`. The effect lives in `src/components/Dither.tsx`; the matching controls and surfaces are styled in `src/stage.css`. The animation is capped at 30 frames per second, respects reduced motion, and leaves a white background if WebGL2 is unavailable.
 
-The interface has a labelled navigation sidebar, a searchable fund library, and a research pane. On narrow screens, use the bottom navigation or open the modal fund library from the header. Each section has a shareable URL fragment, such as `/#predictions`. The original `/#evidence` link opens Supporting signals.
+Run `npm ci` and `npm run dev`, then open <http://127.0.0.1:5173>. Vite proxies `/api` to the FastAPI server on port 8001. Set `$env:RISKORA_API_TARGET = 'http://127.0.0.1:8002'` before starting Vite to use another backend port.
 
-The interface uses native links, inputs, tables, disclosure controls, and a dialog. It keeps Tabler icons and a restrained green palette. There are no WebGL or continuous background effects. Table search, sorting, and pagination operate on real API results. Imported and sample data are labelled separately, and evaluation results are scoped by dataset, period, and saved run.
+The workspace includes fund disclosures, candidate rankings, supporting signals, evaluation, and data management. `src/domain.ts` defines API contracts; `src/api.ts` and `src/hooks/` handle requests and actions; `src/pages/` contains the screens; `src/components/` contains shared navigation, tables, and controls.
 
-`src/domain.ts` defines API contracts; `src/api.ts` formats server and field-validation errors; `src/hooks/` owns request state and actions; `src/pages/` contains the six screens; `src/components/` contains shared UI. Requests are cancelled on context changes and stale responses cannot populate another selection. Tokens remain in memory.
-
-For an isolated backend on a different port, set `$env:RISKORA_API_TARGET = 'http://127.0.0.1:8002'` in the terminal before starting Vite. The default remains port 8001.
-
-See the [root README](../README.md) for backend setup, data imports, model workflow, and known limitations. Verify with `npm test`, `npm run lint`, `npm run format:check`, and `npm run build`. Use `npm run format` after editing the frontend.
+Verify changes with `npm run test`, `npm run lint`, `npm run format:check`, and `npm run build`. See the [root README](../README.md) for backend setup and model details.
