@@ -28,17 +28,17 @@ The website uses a white and gray research workspace over a restrained dither ba
 
 ## Start locally
 
-Requires Python 3.11+ and Node.js compatible with Vite 8 (Node 20.19+ or 22.12+). Use two PowerShell terminals.
+Requires Python 3.11+ and Node.js compatible with Vite 8 (Node 20.19+ or 22.12+). Open two PowerShell terminals at the repository root.
 
 ```powershell
-cd C:\rdr\backend
+cd backend
 python -m pip install -r requirements.txt
 $env:RISKORA_ADMIN_TOKEN = 'replace-with-a-long-local-secret'
 python -m uvicorn app.main:app --host 127.0.0.1 --port 8001
 ```
 
 ```powershell
-cd C:\rdr\frontend
+cd frontend
 npm ci
 npm run dev
 ```
@@ -125,7 +125,7 @@ The LLM request uses JSON mode. A compatible Neysa endpoint can be configured if
 ## Verify
 
 ```powershell
-cd C:\rdr\backend
+cd backend
 python -m pytest -q
 cd ..\frontend
 npm test
