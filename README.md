@@ -21,7 +21,7 @@ For a guided explanation of the screens and data flow, see [how the site works](
 | GitHub repository | <https://github.com/ClashLex/Riskora> (configured `origin`; local changes need publishing before reviewers see them) |
 | Product demo | [Live synthetic demo](https://riskora-demo.onrender.com/) and [three-minute demo script](docs/event-submission/demo-runbook.md). The [local setup](#start-locally) is a fallback. |
 | Pitch deck | [Six-slide PowerPoint deck](docs/event-submission/Riskora-pitch-deck.pptx), [slide guide](docs/event-submission/pitch-deck.md), and [build script](scripts/build_pitch_deck.py) |
-| AI impact statement | [AI impact statement](docs/event-submission/ai-impact-statement.md) (under 200 words) |
+| AI impact statement | Riskora uses an inspectable classifier to rank stocks that may newly appear in a later fund disclosure, using dated holdings and market features. An optional language model extracts facts from supplied event excerpts. The intended impact is an auditable research shortlist; the current evaluation uses fictional data and does not establish real-market accuracy or analyst time savings. [Read the full 195-word statement](docs/event-submission/ai-impact-statement.md). |
 | Submission and provenance | [Handbook alignment and outstanding items](docs/event-submission/README.md) |
 
 **Team:** Ansil Muhammed N S — frontend and interface; Muhammed Ihsan K I — backend, data handling, and other event implementation work (roles reported by the owner).
