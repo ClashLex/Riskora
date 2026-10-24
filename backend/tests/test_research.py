@@ -110,6 +110,11 @@ def test_addition_accumulation_exit_and_cutoff(client):
     assert labels[("2024-02-08", "IN0000000002")] == "addition"
     assert labels[("2024-02-08", "IN0000000001")] == "accumulation"
     assert labels[("2024-03-08", "IN0000000001")] == "exit"
+    changes = client.get("/api/v1/funds/fund_1").json()
+    assert changes["changes_total"] == len(changes["changes"])
+    assert [case["cutoff"] for case in changes["changes"]] == sorted(
+        (case["cutoff"] for case in changes["changes"]), reverse=True
+    )
     assert values["market_available"] == 1
     assert all(item["date"] <= "2024-02-08" for item in evidence)
     assert (

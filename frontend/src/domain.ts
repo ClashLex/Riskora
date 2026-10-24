@@ -37,7 +37,12 @@ export type Change = {
   label: string
   horizon: Horizon
 }
-export type FundDetail = { scheme: Fund; snapshots: Snapshot[]; changes: Change[] }
+export type FundDetail = {
+  scheme: Fund
+  snapshots: Snapshot[]
+  changes: Change[]
+  changes_total: number
+}
 export type Candidate = {
   isin: string
   company: string

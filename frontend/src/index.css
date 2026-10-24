@@ -20,8 +20,8 @@
 body {
   margin: 0;
   min-width: 320px;
-  font-size: 14px;
-  line-height: 1.6;
+  font-size: 16px;
+  line-height: 1.55;
 }
 button,
 input,
@@ -71,7 +71,7 @@ h1 {
   font-weight: 600;
   line-height: 1.2;
   letter-spacing: -0.04em;
-  margin-bottom: 10px;
+  margin-bottom: 0;
 }
 h2 {
   font-size: 1.08rem;
@@ -153,7 +153,7 @@ svg {
 .brand small {
   display: block;
   margin-top: 6px;
-  font-size: 0.7rem;
+  font-size: 0.76rem;
 }
 .main-nav {
   display: grid;
@@ -171,7 +171,7 @@ svg {
   text-decoration: none;
   border-radius: var(--radius);
   border-left: 2px solid transparent;
-  font-size: 0.85rem;
+  font-size: 0.88rem;
 }
 .main-nav a:hover {
   background: var(--raised);
@@ -208,7 +208,7 @@ svg {
 }
 .sidebar-search > span:first-child,
 .source-filter {
-  font-size: 0.74rem;
+  font-size: 0.82rem;
 }
 .search-field {
   display: flex;
@@ -225,7 +225,7 @@ svg {
 }
 .source-filter select,
 .search-field input {
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   min-height: 40px;
 }
 .fund-list {
@@ -250,18 +250,11 @@ svg {
   background: #20332b;
 }
 .fund-list strong {
-  font-size: 0.8rem;
+  font-size: 0.85rem;
   font-weight: 500;
 }
 .fund-list span {
-  font-size: 0.7rem;
-  color: var(--muted);
-}
-.sidebar-note {
-  padding: 14px 22px;
-  margin: 0;
-  font-size: 0.7rem;
-  border-top: 1px solid var(--line);
+  font-size: 0.77rem;
   color: var(--muted);
 }
 .sidebar-empty {
@@ -281,20 +274,9 @@ svg {
   align-items: flex-start;
   gap: 18px;
   max-width: 1320px;
-  padding: 29px 40px 26px;
+  padding: 25px 40px 20px;
   margin: auto;
   border-bottom: 1px solid var(--line);
-}
-.breadcrumb {
-  color: var(--muted);
-  font-size: 0.73rem;
-  margin-bottom: 20px;
-}
-.page-description {
-  color: var(--muted);
-  font-size: 0.86rem;
-  max-width: 700px;
-  margin: 0;
 }
 .header-actions {
   display: flex;
@@ -323,19 +305,7 @@ svg {
   max-width: 1320px;
   margin: auto;
   padding: 28px 40px 40px;
-  min-height: calc(100dvh - 240px);
-}
-.content-footer {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: 8px;
-  max-width: 1240px;
-  margin: auto 40px;
-  padding: 18px 0 24px;
-  border-top: 1px solid var(--line);
-  font-size: 0.72rem;
-  color: var(--muted);
+  min-height: calc(100dvh - 95px);
 }
 .section {
   margin-bottom: 32px;
@@ -373,7 +343,7 @@ svg {
   gap: 22px;
   padding: 10px 0;
   border-bottom: 1px solid var(--line);
-  font-size: 0.83rem;
+  font-size: 0.87rem;
 }
 .facts dt {
   color: var(--muted);
@@ -500,7 +470,7 @@ svg {
 label {
   display: grid;
   gap: 7px;
-  font-size: 0.8rem;
+  font-size: 0.86rem;
   font-weight: 500;
   color: var(--text);
   min-width: 0;
@@ -645,7 +615,7 @@ table {
   width: 100%;
   border-collapse: collapse;
   text-align: left;
-  font-size: 0.8rem;
+  font-size: 0.84rem;
 }
 th {
   padding: 10px 12px;
@@ -654,7 +624,7 @@ th {
   color: var(--muted);
   font-weight: 500;
   background: #19241f;
-  font-size: 0.74rem;
+  font-size: 0.78rem;
 }
 td {
   padding: 12px;
@@ -710,7 +680,7 @@ th[aria-sort='descending'] {
   gap: 14px;
   padding-top: 12px;
   color: var(--muted);
-  font-size: 0.74rem;
+  font-size: 0.8rem;
 }
 .table-footer > div {
   display: flex;
@@ -719,7 +689,7 @@ th[aria-sort='descending'] {
 .table-footer button {
   min-height: 36px;
   padding: 5px 12px;
-  font-size: 0.76rem;
+  font-size: 0.8rem;
 }
 .table-empty {
   padding: 20px 12px;
@@ -871,9 +841,6 @@ details[open] {
   .content {
     padding: 26px 25px;
   }
-  .content-footer {
-    margin: 0 25px;
-  }
   .two-col {
     grid-template-columns: minmax(0, 1fr);
     gap: 0;
@@ -890,14 +857,15 @@ details[open] {
     border: 0;
   }
   .brand,
-  .desktop-funds,
-  .sidebar-note {
+  .desktop-funds {
     display: none;
   }
   .main-nav {
     display: grid;
-    grid-template-columns: repeat(6, minmax(0, 1fr));
-    gap: 0;
+    grid-template-columns: repeat(6, minmax(max-content, 1fr));
+    gap: 6px;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
     position: fixed;
     bottom: 0;
     left: 0;
@@ -927,7 +895,8 @@ details[open] {
   }
   .nav-short {
     display: inline;
-    font-size: 0.65rem;
+    font-size: 0.7rem;
+    white-space: nowrap;
   }
   .drawer-toggle {
     display: inline-grid;
@@ -935,23 +904,12 @@ details[open] {
   .page-header {
     padding: 22px 18px;
   }
-  .breadcrumb {
-    margin-bottom: 15px;
-  }
   .header-actions {
     gap: 5px;
   }
-  .page-description {
-    font-size: 0.8rem;
-  }
   .content {
     padding: 22px 18px;
-    min-height: calc(100dvh - 300px);
-  }
-  .content-footer {
-    margin: 0 18px;
-    display: grid;
-    font-size: 0.7rem;
+    min-height: calc(100dvh - 175px);
   }
   .toolbar {
     gap: 14px;
@@ -1025,7 +983,6 @@ details[open] {
     min-width: 0;
   }
   .nav-short {
-    overflow-wrap: anywhere;
     text-align: center;
   }
 }

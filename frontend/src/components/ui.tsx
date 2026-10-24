@@ -66,15 +66,11 @@ export function SourceNotice({ source }: { source: string }) {
   return source === 'synthetic' ? (
     <div className="source-notice">
       <strong>Synthetic sample</strong>
-      <span>
-        Fictional funds and prices. Results demonstrate the workflow and do not measure real
-        predictive performance.
-      </span>
+      <span>Fictional holdings and prices. Evaluation does not show real market performance.</span>
     </div>
   ) : (
     <p className="provenance">
-      {sourceName(source)} · Source links are supplied with imports and have not been independently
-      verified.
+      {sourceName(source)} · Supplied sources have not been independently verified.
     </p>
   )
 }

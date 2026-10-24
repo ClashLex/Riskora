@@ -21,6 +21,8 @@ function FundList({
       (source === 'all' || fund.source_kind === source) &&
       `${fund.name} ${fund.amc}`.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase()),
   )
+  if (!funds.length)
+    return <p className="sidebar-empty">No funds yet. Import disclosures to add one.</p>
   return (
     <>
       <label className="sidebar-search">
@@ -57,11 +59,7 @@ function FundList({
           </li>
         ))}
       </ul>
-      {!filtered.length && (
-        <p className="sidebar-empty">
-          {funds.length ? 'No funds match these filters.' : 'No funds imported yet.'}
-        </p>
-      )}
+      {!filtered.length && <p className="sidebar-empty">No funds match these filters.</p>}
     </>
   )
 }
@@ -161,18 +159,11 @@ export function Workspace({
           </h2>
           <FundList funds={funds} fundId={fundId} select={select} />
         </div>
-        <p className="sidebar-note">
-          Local research workspace
-          <br />
-          Data updates through imports.
-        </p>
       </aside>
       <main id="main-content" tabIndex={-1} className="main-area">
         <header className="page-header">
           <div>
-            <p className="breadcrumb">Riskora / Research</p>
             <h1>{current.title}</h1>
-            <p className="page-description">{current.description}</p>
           </div>
           <div className="header-actions">
             <button
@@ -200,10 +191,6 @@ export function Workspace({
           </div>
         </header>
         <div className="content">{children}</div>
-        <footer className="content-footer">
-          <span>Indian equity mutual fund research</span>
-          <span>Scores are rankings, not probabilities.</span>
-        </footer>
       </main>
       <dialog
         ref={dialog}

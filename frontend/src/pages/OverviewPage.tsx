@@ -32,10 +32,7 @@ export function OverviewPage({
             </Empty>
           ) : (
             <>
-              <Section
-                title="Disclosure coverage"
-                description="Imported statements and sample history are counted separately."
-              >
+              <Section title="Disclosure coverage">
                 <Facts
                   items={[
                     ['Imported disclosures', summary.imported_observations],
@@ -45,14 +42,11 @@ export function OverviewPage({
                       `${summary.eligible_funds} of ${summary.funds}`,
                     ],
                     ['Latest imported report date', dateLabel(summary.latest_real_report)],
-                    ['Last data import', dateLabel(summary.latest_update, true)],
+                    ['Last holdings import', dateLabel(summary.latest_update, true)],
                   ]}
                 />
               </Section>
-              <Section
-                title="Funds in this workspace"
-                description="Choose a fund to inspect its reported holdings and publication dates."
-              >
+              <Section title="Funds">
                 <DataTable
                   caption="Fund coverage"
                   rows={r.funds}
@@ -98,35 +92,36 @@ export function OverviewPage({
               </Section>
             </>
           )}
-          <Section title="Data checks">
-            {summary.warnings.length ? (
-              <ul className="check-list">
-                {summary.warnings.map((warning) => (
-                  <li key={warning}>{warning}</li>
-                ))}
-              </ul>
-            ) : (
-              <p>
-                No import warnings reported. This does not verify the accuracy of the supplied
-                sources.
-              </p>
-            )}
-          </Section>
-          <aside className="method-note">
-            <h2>What this workspace measures</h2>
-            <p>
-              The target is a holding that is absent from a complete disclosure and appears at a
-              weight of at least 0.1% in a later disclosure. A report reveals a position, not the
-              date or reason for a trade.
-            </p>
-            <p>
-              Rankings need a trained model for the selected dataset and period. Review its
-              later-period evaluation and baselines before interpreting scores.
-            </p>
-            <button className="text-button" onClick={() => navigate('Evaluation')}>
-              Review evaluation
-            </button>
-          </aside>
+          {summary.funds > 0 && (
+            <>
+              <Section title="Data checks">
+                {summary.warnings.length ? (
+                  <ul className="check-list">
+                    {summary.warnings.map((warning) => (
+                      <li key={warning}>{warning}</li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p>
+                    No import warnings reported. This does not verify the accuracy of the supplied
+                    sources.
+                  </p>
+                )}
+              </Section>
+              <aside className="method-note">
+                <h2>How a new position is identified</h2>
+                <p>
+                  The target is a holding that is absent from a complete disclosure and appears at a
+                  weight of at least 0.1% in a later disclosure. A report reveals a position, not
+                  the date or reason for a trade.
+                </p>
+                <p>Review later-period evaluation before interpreting a ranking.</p>
+                <button className="text-button" onClick={() => navigate('Evaluation')}>
+                  Review evaluation
+                </button>
+              </aside>
+            </>
+          )}
         </>
       )}
     </>

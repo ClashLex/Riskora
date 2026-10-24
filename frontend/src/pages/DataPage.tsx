@@ -15,9 +15,6 @@ export function DataPage({ research: r }: { research: Research }) {
         <div className="token-input">
           <TokenInput value={r.token} onChange={r.setToken} />
         </div>
-        {!r.token && (
-          <p className="access-note">Enter a management token to enable the actions below.</p>
-        )}
       </Section>
       <Section
         title="Import disclosures and prices"
@@ -232,11 +229,11 @@ export function DataPage({ research: r }: { research: Research }) {
       </details>
       <Section
         title="Try sample data"
-        description="Two fictional funds, 15 monthly statements, and synthetic market prices. These remain separate from imported data in training and rankings."
+        description="Two fictional funds, 15 monthly statements, and synthetic prices. Sample data stays separate from imports."
       >
         <p className="muted">
-          Sample evaluation results demonstrate the workflow. They do not measure real predictive
-          performance. Loading again keeps the existing sample.
+          Sample evaluations do not measure real predictive performance. Loading again keeps the
+          existing sample.
         </p>
         <button className="secondary" disabled={disabled} onClick={() => void r.loadDemo()}>
           {r.pending === 'Loading synthetic sample' ? 'Loading sample…' : 'Load synthetic sample'}

@@ -111,10 +111,7 @@ export function EvaluationPage({ research: r }: { research: Research }) {
         </Empty>
       ) : (
         <>
-          <Section
-            title="Saved evaluation"
-            description="All results below belong to the selected run."
-          >
+          <Section title="Saved evaluation">
             {!run.current_method && (
               <p className="warning">
                 Legacy evaluation: this run predates the publication-date checks. Retrain before

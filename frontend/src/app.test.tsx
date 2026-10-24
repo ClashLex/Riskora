@@ -158,7 +158,7 @@ it('keeps semantic navigation, direct links, and management access usable', asyn
   const user = userEvent.setup()
   window.history.replaceState(null, '', '/#data-management')
   render(<App />)
-  expect(await screen.findByRole('heading', { name: 'Data management' })).toBeTruthy()
+  expect(await screen.findByRole('heading', { name: 'Manage data' })).toBeTruthy()
   const nav = screen.getByRole('navigation', { name: 'Main navigation' })
   expect(within(nav).getAllByRole('link')).toHaveLength(6)
   expect(screen.getByRole('link', { name: 'Data management' }).getAttribute('aria-current')).toBe(
@@ -171,7 +171,10 @@ it('keeps semantic navigation, direct links, and management access usable', asyn
   link.focus()
   await user.keyboard('{Enter}')
   expect(window.location.hash).toBe('#overview')
-  expect(await screen.findByText('No historical holdings imported.')).toBeTruthy()
+  expect(
+    await screen.findByRole('heading', { name: 'Start with a fund’s disclosure history' }),
+  ).toBeTruthy()
+  expect(screen.queryByRole('heading', { name: 'Data checks' })).toBeNull()
   expect(screen.queryByText('Proof')).toBeNull()
 })
 
@@ -182,7 +185,7 @@ it('filters the fund library and restores focus when the drawer closes', async (
   await user.type(screen.getByRole('searchbox', { name: 'Find a fund' }), 'sample')
   expect(screen.queryByText('Imported Fund')).toBeNull()
   await user.click(screen.getByRole('button', { name: /Sample Fund/ }))
-  expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Fund explorer')
+  expect(screen.getByRole('heading', { level: 1 }).textContent).toBe('Fund disclosures')
   const toggle = screen.getByRole('button', { name: 'Open fund library' })
   await user.click(toggle)
   expect(screen.getByRole('dialog', { name: 'Fund library' })).toBeTruthy()
@@ -297,7 +300,9 @@ it('shows offline errors and recovers on retry', async () => {
   )
   vi.mocked(fetch).mockImplementation(async (input) => response(fixture(String(input))))
   await user.click(screen.getByRole('button', { name: 'Retry' }))
-  expect(await screen.findByText('No historical holdings imported.')).toBeTruthy()
+  expect(
+    await screen.findByRole('heading', { name: 'Start with a fund’s disclosure history' }),
+  ).toBeTruthy()
   await waitFor(() => expect(screen.queryByRole('alert')).toBeNull())
 })
 

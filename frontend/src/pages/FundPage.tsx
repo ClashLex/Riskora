@@ -64,7 +64,7 @@ export function FundPage({
           </div>
           <Section
             title="Disclosed holdings"
-            description="Select a report date. Publication date is when the statement became available."
+            description="Publication date is when the statement became available."
           >
             <label className="snapshot-select">
               Report date
@@ -154,9 +154,14 @@ export function FundPage({
             )}
           </Section>
           <Section
-            title="Changes between disclosures"
-            description="Up to 200 changes returned by the server, across monthly and quarterly comparisons. Incomplete or unaligned periods are labelled unknown."
+            title="Changes and uncertain cases"
+            description="Monthly and quarterly comparisons. Uncertain cases come from incomplete or unaligned statements, or securities unknown at the cutoff."
           >
+            {fund.changes_total > fund.changes.length && (
+              <p className="muted">
+                Showing the latest {fund.changes.length} of {fund.changes_total} records.
+              </p>
+            )}
             <DataTable
               caption="Disclosure changes"
               rows={fund.changes}
@@ -187,9 +192,15 @@ export function FundPage({
                 },
                 {
                   key: 'change',
-                  label: 'Change',
+                  label: 'Result',
                   sort: (row) => row.label,
-                  render: (row) => row.label,
+                  render: (row) =>
+                    ({
+                      addition: 'New position',
+                      exit: 'Exit',
+                      accumulation: 'More units',
+                      unknown: 'Uncertain',
+                    })[row.label] || row.label,
                 },
               ]}
             />

@@ -47,7 +47,7 @@ export function PredictionsPage({
           <div className="prediction-context">
             <Section
               title={`${r.selectedFund?.name} · ${periodName(result.horizon)}`}
-              description="Possible new positions in a later disclosure. Scores are uncalibrated and express rank order, not purchase probabilities."
+              description="Scores rank possible new positions; they are not purchase probabilities."
             >
               <Facts
                 items={[
@@ -63,7 +63,7 @@ export function PredictionsPage({
           </div>
           <Section
             title="Ranked candidates"
-            description="Stocks in the known universe that are absent from the selected complete statement. The rank stays fixed when you sort or filter the table."
+            description="Known stocks absent from the selected complete statement. The original rank stays fixed when you sort or filter."
           >
             <DataTable
               key={`${result.run_id}:${result.cutoff}:${result.scheme_id}`}

@@ -89,7 +89,7 @@ def create_app():
                 (SELECT COUNT(*) FROM snapshots WHERE source_kind='synthetic') synthetic_observations,
                 (SELECT COUNT(*) FROM snapshots WHERE source_kind='user_import') imported_observations,
                 (SELECT MAX(report_date) FROM snapshots WHERE source_kind='user_import') latest_real_report,
-                (SELECT MAX(retrieved_at) FROM snapshots) latest_update""").fetchone()
+                (SELECT MAX(retrieved_at) FROM snapshots WHERE source_kind='user_import') latest_update""").fetchone()
             latest = db.execute(
                 "SELECT * FROM training_runs WHERE status='complete' AND model_version=? ORDER BY id DESC LIMIT 1",
                 (MODEL_VERSION,),
@@ -188,7 +188,13 @@ def create_app():
                 for case in build_labels(db, horizon)
                 if case["scheme_id"] == scheme_id and case["label"] not in {"negative", "existing"}
             ]
-            return {"scheme": dict(scheme), "snapshots": snapshots, "changes": labels[:200]}
+            labels.sort(key=lambda case: (case["cutoff"], case["target_report_date"]), reverse=True)
+            return {
+                "scheme": dict(scheme),
+                "snapshots": snapshots,
+                "changes": labels[:200],
+                "changes_total": len(labels),
+            }
 
     @app.post("/api/v1/imports/holdings", dependencies=[Depends(admin)])
     async def holdings_import(
