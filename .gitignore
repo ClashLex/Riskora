@@ -13,5 +13,6 @@ dist/
 build/
 *.egg-info/
 backend/data/
+data/absl_flexi_cap/downloads/
 frontend/node_modules/
 frontend/*.tsbuildinfo

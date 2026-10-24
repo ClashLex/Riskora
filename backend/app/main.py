@@ -409,7 +409,7 @@ def create_app():
             return {
                 "holdings": rows(
                     db,
-                    """SELECT p.report_date,p.published_at,p.source_url,h.weight,h.units
+                    """SELECT p.report_date,p.published_at,p.availability_basis,p.source_url,h.weight,h.units
                 FROM snapshots p JOIN holdings h ON h.snapshot_id=p.id WHERE p.scheme_id=? AND h.isin=?
                 AND p.published_at<=? ORDER BY p.report_date DESC""",
                     (scheme_id, isin, limit),

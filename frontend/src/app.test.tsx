@@ -165,6 +165,31 @@ it('keeps semantic navigation, direct links, and management access usable', asyn
   expect(screen.queryByText('Proof')).toBeNull()
 })
 
+it('offers the same six destinations in the mobile bottom navigation', async () => {
+  const user = userEvent.setup()
+  render(<App />)
+  const nav = screen.getByRole('navigation', { name: 'Bottom navigation' })
+  const links = within(nav).getAllByRole('link')
+  expect(links.map((link) => link.getAttribute('href'))).toEqual([
+    '#overview',
+    '#fund-explorer',
+    '#predictions',
+    '#evidence',
+    '#evaluation',
+    '#data-management',
+  ])
+  expect(
+    within(nav).getByRole('link', { name: 'Research overview' }).getAttribute('aria-current'),
+  ).toBe('page')
+
+  await user.click(within(nav).getByRole('link', { name: 'Candidate rankings' }))
+  expect(window.location.hash).toBe('#predictions')
+  expect(await screen.findByRole('heading', { level: 1, name: 'Candidate rankings' })).toBeTruthy()
+  expect(
+    within(nav).getByRole('link', { name: 'Candidate rankings' }).getAttribute('aria-current'),
+  ).toBe('page')
+})
+
 it('explains why supporting signals are empty when no funds are loaded', async () => {
   vi.mocked(fetch).mockImplementation(async (input) =>
     response(String(input).endsWith('/funds') ? [] : fixture(String(input))),

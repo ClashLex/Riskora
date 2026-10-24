@@ -100,7 +100,8 @@ export function DataPage({ research: r }: { research: Research }) {
             <h3>Import market prices</h3>
             <p className="muted">
               Required columns: <code>date, isin, company, close, volume</code>. Optional adjusted
-              prices help reduce distortions from corporate actions.{' '}
+              prices help reduce distortions from corporate actions. An optional{' '}
+              <code>source_url</code> column can identify each daily archive.{' '}
               <a href="/templates/market.csv" download>
                 Download CSV headers
               </a>

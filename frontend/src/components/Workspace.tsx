@@ -11,6 +11,15 @@ const navItems = pages.map(({ name, icon: Icon }) => ({
   icon: <Icon size={18} stroke={1.8} aria-hidden="true" />,
 }))
 
+const mobileLabels: Record<Page, string> = {
+  Overview: 'Home',
+  'Fund explorer': 'Funds',
+  Predictions: 'Rankings',
+  Evidence: 'Signals',
+  Evaluation: 'Results',
+  'Data management': 'Data',
+}
+
 export function Workspace({
   page,
   navigate,
@@ -73,6 +82,35 @@ export function Workspace({
           />
         </div>
       </div>
+      <nav className="workspace-mobile-nav" aria-label="Bottom navigation">
+        {pages.map(({ name, title, icon: Icon }) => (
+          <a
+            key={name}
+            href={pageHash(name)}
+            aria-label={title}
+            aria-current={page === name ? 'page' : undefined}
+            onClick={(event) => {
+              if (
+                event.button !== 0 ||
+                event.ctrlKey ||
+                event.metaKey ||
+                event.shiftKey ||
+                event.altKey
+              )
+                return
+              event.preventDefault()
+              navigate(name)
+            }}
+          >
+            <span className="workspace-mobile-nav__icon">
+              <Icon size={20} stroke={1.8} aria-hidden="true" />
+            </span>
+            <span className="workspace-mobile-nav__label" aria-hidden="true">
+              {mobileLabels[name]}
+            </span>
+          </a>
+        ))}
+      </nav>
       <main id="main-content" tabIndex={-1} className="main-area">
         <header className="page-header">
           <div className="page-header-copy">

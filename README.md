@@ -6,9 +6,11 @@ Riskora is a local research prototype that ranks stocks that may **newly appear 
 
 Fund portfolio statements are retrospective. A researcher comparing Indian equity mutual-fund disclosures must assemble dated holdings, distinguish a genuinely new position from an existing one, and check what was knowable before the next statement. Riskora is intended for analysts and research teams exploring that question; it has not been validated with paying customers.
 
-The prototype accepts normalized, attributed disclosures and optional market observations, checks comparability and publication dates, trains a point-in-time ranking model, and shows candidate stocks with their supporting inputs and a later-period evaluation. The repository contains a **synthetic demonstration**, not an established prediction service or a verified Indian-market performance claim.
+The prototype accepts normalized, attributed disclosures and optional market observations, checks comparability and publication dates, trains a point-in-time ranking model, and shows candidate stocks with their supporting inputs and a later-period evaluation. The repository contains a **synthetic model demonstration** and two supplied ABSL Flexi Cap snapshots for portfolio exploration, not an established prediction service or a verified Indian-market performance claim.
 
 **Stack:** React 19, TypeScript, Vite, FastAPI, SQLite, scikit-learn, and an optional OpenAI-compatible language-model endpoint for grounded event extraction. See [assumptions and trade-offs](docs/event-submission/assumptions-and-tradeoffs.md) for the choices behind this scope.
+
+For a guided explanation of the screens and data flow, see [how the site works](docs/how-the-site-works.md). To deploy this repository on a single server, see [hosting Riskora live](docs/hosting-live.md).
 
 ## AIBoomi review package
 
@@ -54,6 +56,18 @@ Open <http://127.0.0.1:5173>. API documentation is at <http://127.0.0.1:8001/doc
 
 Synthetic evaluation numbers verify the code path; they do not measure predictive performance in Indian markets. No genuine model is bundled or pretrained.
 
+## Explore the supplied ABSL Flexi Cap disclosures
+
+The repository includes August and September 2026 AMC workbooks in `data/absl_flexi_cap/raw/` and their normalized holdings CSVs in `data/absl_flexi_cap/normalized/`. Run the following after installing `backend/requirements.txt`:
+
+```powershell
+python scripts/load_supplied_disclosures.py
+```
+
+The script validates both CSVs against their source workbooks, loads both snapshots into the local SQLite database, and is safe to rerun. Open **Fund explorer** and choose **ADITYA BIRLA SUN LIFE FLEXI CAP FUND**. August has 84 usable Indian-ISIN equity rows (98.4452% of AUM); September has 82 (97.8734%). Each workbook has one zero-value unlisted identifier outside the Indian ISIN format, which is omitted. The conversion keeps units, scales `% to AUM` fractions to percentage points, and converts market value from lakhs to rupees. See [the data review](docs/absl-data-review.md).
+
+The workbooks were downloaded from the two AMC archive URLs in the [acquisition manifest](docs/absl-data-acquisition.md) and match the normalized data. Their exact public release dates remain unverified. The loader records its run date as the first observed availability date, links each snapshot to its AMC archive, and marks both ineligible for model labels. The dates appear as **Observed** in the explorer. The local database is ignored by Git, so another checkout must run the loader. Do not interpret the August-to-September difference as verified trading activity or real predictive performance.
+
 ## Import real disclosures
 
 The first real-data path is a **user-normalized UTF-8 CSV import**. Download a public AMC or AMFI statement yourself, preserve its URL and publication date, and convert its equity holdings for a single scheme and report date into:
@@ -72,7 +86,7 @@ date,isin,company,close,adjusted_close,volume,ticker,sector,industry
 2024-01-31,INE000A01010,Example Company,750.5,748.3,1234567,EXAMPLE,Industrials,Capital Goods
 ```
 
-`date`, `isin`, `company`, `close`, and `volume` are required. Dates and rows are validated; duplicate observations are rejected. Adjusted close is used for returns when supplied, otherwise raw close is used and the evidence notes that limitation. No live price API is called. `backend/app/ingestion.py` defines replaceable holdings and market provider protocols with working user CSV adapters. There is no automatic corporate-action, symbol-change, calendar, market/sector-index, or survivorship adjustment.
+`date`, `isin`, `company`, `close`, and `volume` are required. An optional `source_url` column can identify the exact source archive for each row; otherwise the batch source URL is used. Dates and rows are validated; duplicate observations are rejected. Adjusted close is used for returns when supplied, otherwise raw close is used and the evidence notes that limitation. No live price API is called. `backend/app/ingestion.py` defines replaceable holdings and market provider protocols with working user CSV adapters. There is no automatic corporate-action, symbol-change, calendar, market/sector-index, or survivorship adjustment.
 
 Public company events can be imported with `POST /api/v1/events` and then optionally extracted through `POST /api/v1/events/{id}/extract`. The latter is server side only. Without configured LLM credentials, events and all other workflows still work; extraction returns a clear configuration error. Facts and evidence must be verbatim substrings of the supplied excerpt. LLM output remains separate from original evidence.
 
@@ -82,7 +96,7 @@ Public company events can be imported with `POST /api/v1/events` and then option
 - [AMFI-hosted scheme disclosure text](https://portal.amfiindia.com/spages/12306.pdf) describes monthly portfolio publication with ISIN on AMC and AMFI sites. Format and historical availability vary by AMC.
 - [AMFI Monthly](https://www.amfiindia.com/research-information/amfi-monthly) publishes industry reports, which are **not** the same as scheme-level constituents.
 
-No official holdings file, NSE/BSE feed, market API, news feed, or hosted LLM endpoint was imported or exercised in this repository. The normalized import route and synthetic path were tested locally. Do not label imported data as official without independently checking the disclosure.
+The supplied August and September workbooks match the corresponding normalized CSVs and were retrieved through the AMC archive links in the acquisition manifest. Their release dates remain unverified. The pack can fetch NSE daily bhavcopies; one day was downloaded locally to check the adapter, but no NSE/BSE feed, market API, news feed, or hosted LLM endpoint was imported into the application. The normalized import route and synthetic path were tested locally. Do not label imported data as point-in-time verified without checking publication dates.
 
 ## Labels, features, and evaluation
 
@@ -134,4 +148,4 @@ npm run format:check
 npm run build
 ```
 
-Known limitations: disclosures must be manually normalized from XLSX/PDF; completeness is partly user attested; there is no automatic AMC/AMFI discovery, price/news ingestion, corporate-action audit, probability calibration, continuous background refresh, or credible real-data backtest without imported historical disclosures. Local SQLite and a single management token suit a local demonstration, not multi-user production deployment.
+Known limitations: the supplied ABSL `.xls` can be normalized by `scripts/normalize_absl_xls.py`, but other disclosure layouts and PDFs still need manual conversion; completeness is partly user attested; there is no automatic AMC/AMFI discovery, price/news ingestion, corporate-action audit, probability calibration, continuous background refresh, or credible real-data backtest without more verified historical disclosures. Local SQLite and a single management token suit a local demonstration, not multi-user production deployment.

@@ -180,6 +180,10 @@ tbody tr:hover {
   min-width: 0;
 }
 
+.workspace-mobile-nav {
+  display: none;
+}
+
 .workspace .main-area {
   width: 100%;
 }
@@ -199,10 +203,6 @@ tbody tr:hover {
 }
 
 @media (max-width: 650px) {
-  .workspace {
-    padding-bottom: 0;
-  }
-
   .workspace-topbar {
     gap: 12px;
     min-height: 62px;
@@ -225,5 +225,77 @@ tbody tr:hover {
   .workspace .content {
     padding: 18px;
     min-height: calc(100dvh - 130px);
+  }
+}
+
+@media (max-width: 800px) {
+  .workspace {
+    padding-bottom: calc(76px + env(safe-area-inset-bottom));
+  }
+
+  .workspace-nav-wrap {
+    display: none;
+  }
+
+  .workspace-mobile-nav {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 50;
+    display: grid;
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    gap: 0;
+    padding: 6px max(8px, env(safe-area-inset-right)) calc(6px + env(safe-area-inset-bottom))
+      max(8px, env(safe-area-inset-left));
+    border-top: 1px solid var(--line);
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(18px);
+  }
+
+  .workspace-mobile-nav a {
+    display: flex;
+    min-width: 0;
+    min-height: 56px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    border-radius: 10px;
+    color: var(--muted);
+    text-decoration: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .workspace-mobile-nav a:focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: -2px;
+  }
+
+  .workspace-mobile-nav__icon {
+    display: grid;
+    width: 42px;
+    height: 28px;
+    place-items: center;
+    border-radius: 999px;
+  }
+
+  .workspace-mobile-nav a[aria-current='page'] {
+    color: var(--text);
+    font-weight: 650;
+  }
+
+  .workspace-mobile-nav a[aria-current='page'] .workspace-mobile-nav__icon {
+    background: var(--text);
+    color: #fff;
+  }
+
+  .workspace-mobile-nav__label {
+    max-width: 100%;
+    overflow: hidden;
+    font-size: 0.65rem;
+    line-height: 1.25;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 }

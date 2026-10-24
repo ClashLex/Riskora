@@ -177,6 +177,8 @@ def import_holdings(
     complete: bool,
     category: str = "",
     source_kind="user_import",
+    availability_basis: str = "publication",
+    source_note: str = "",
 ):
     if not re.fullmatch(r"[a-zA-Z0-9_-]{2,64}", scheme_id):
         raise ImportProblem("Scheme ID must be 2-64 letters, digits, underscores, or hyphens.")
@@ -184,6 +186,10 @@ def import_holdings(
         raise ImportProblem("Scheme name and AMC are required (max 200 characters).")
     if source_kind not in {"user_import", "synthetic"}:
         raise ImportProblem("Unsupported source kind.")
+    if availability_basis not in {"publication", "observed"}:
+        raise ImportProblem("Availability basis must be publication or observed.")
+    if source_kind == "synthetic" and availability_basis != "publication":
+        raise ImportProblem("Synthetic snapshots use their generated publication date.")
     report = parse_date(report_date, "report_date")
     published = parse_date(published_at, "published_at")
     if report > published or published > date.today():
@@ -207,7 +213,13 @@ def import_holdings(
     warnings = []
     if total < 90:
         warnings.append("Weights total below 90%; snapshot treated as incomplete.")
-    effective_complete = bool(complete and total >= 90)
+    if availability_basis == "observed":
+        warnings.append(
+            "Exact publication date is unverified; the availability date is when the file was observed. This snapshot is excluded from comparable labels."
+        )
+    if source_note.strip():
+        warnings.append(source_note.strip())
+    effective_complete = bool(complete and total >= 90 and availability_basis == "publication")
     with connect() as db:
         try:
             db.execute("BEGIN")
@@ -239,8 +251,8 @@ def import_holdings(
             cursor = db.execute(
                 """INSERT INTO snapshots
                 (scheme_id,report_date,published_at,retrieved_at,source_url,file_sha256,
-                 source_kind,complete,weight_total,parse_status,warnings)
-                VALUES(?,?,?,?,?,?,?,?,?,?,?)""",
+                 source_kind,availability_basis,complete,weight_total,parse_status,warnings)
+                VALUES(?,?,?,?,?,?,?,?,?,?,?,?)""",
                 (
                     scheme_id,
                     report.isoformat(),
@@ -249,6 +261,7 @@ def import_holdings(
                     source_url,
                     digest,
                     source_kind,
+                    availability_basis,
                     int(effective_complete),
                     total,
                     "parsed",
@@ -296,17 +309,19 @@ def import_market(data: bytes, *, source_url: str, source_kind="user_import"):
         adjusted = number(
             row.get("adjusted_close"), "adjusted_close", minimum=0.000001, required=False
         )
-        prepared.append((row, day.isoformat(), close, volume, adjusted))
+        row_source = (row.get("source_url") or "").strip() or source_url
+        valid_url(row_source, synthetic=source_kind == "synthetic")
+        prepared.append((row, day.isoformat(), close, volume, adjusted, row_source))
     with connect() as db:
         try:
             db.execute("BEGIN")
-            for row, day, close, volume, adjusted in prepared:
+            for row, day, close, volume, adjusted, row_source in prepared:
                 isin = check_security(db, row)
                 db.execute(
                     """INSERT INTO market_observations
                     (isin,date,close,volume,adjusted_close,source_url,imported_at,source_kind)
                     VALUES(?,?,?,?,?,?,?,?)""",
-                    (isin, day, close, volume, adjusted, source_url, utcnow(), source_kind),
+                    (isin, day, close, volume, adjusted, row_source, utcnow(), source_kind),
                 )
             db.commit()
         except Exception:

@@ -62,6 +62,40 @@ def test_import_validation_and_duplicate_snapshot(client):
     assert client.get("/api/v1/overview").json()["observations"] == 1
 
 
+def test_observed_disclosure_remains_ineligible_for_labels(client):
+    data = holding_csv("IN0000000001,Company A,100,10,Banks,Banks,AAA")
+    import_snapshot(data, "2024-01-31", "2024-02-08")
+    result = import_holdings(
+        data,
+        scheme_id="fund_1",
+        scheme_name="Test Fund",
+        amc="Test AMC",
+        report_date="2024-02-29",
+        published_at="2024-04-15",
+        source_url="https://example.org/disclosures",
+        complete=True,
+        availability_basis="observed",
+    )
+    assert result["complete"] is False
+    fund = client.get("/api/v1/funds/fund_1").json()
+    assert fund["snapshots"][0]["availability_basis"] == "observed"
+    assert "publication date is unverified" in fund["snapshots"][0]["warnings"][0].lower()
+    with connect() as db:
+        assert {case["label"] for case in build_labels(db)} == {"unknown"}
+
+
+def test_market_import_retains_per_observation_source_url(client):
+    data = (
+        b"date,isin,company,close,volume,source_url\n"
+        b"2024-01-30,IN0000000001,Company A,100,0,https://example.org/2024-01-30.zip\n"
+    )
+    import_market(data, source_url="https://example.org/reports")
+    with connect() as db:
+        row = db.execute("SELECT volume,source_url FROM market_observations").fetchone()
+    assert row["volume"] == 0
+    assert row["source_url"] == "https://example.org/2024-01-30.zip"
+
+
 def test_ambiguous_identifier_and_incomplete_unknown(client):
     first = holding_csv("IN0000000001,Company A,100,10,Banks,Banks,AAA")
     import_snapshot(first, "2024-01-31", "2024-02-08")

@@ -122,13 +122,14 @@ export function EvidencePage({
         <>
           <Section
             title="Prior disclosed positions"
-            description="Positions in this fund’s statements published by the cutoff."
+            description="Positions in this fund’s statements available by the cutoff."
           >
             {evidence.holdings.length ? (
               evidence.holdings.map((holding, index) => (
                 <div className="source-row" key={index}>
                   <p>
-                    Report {dateLabel(holding.report_date)} · Published{' '}
+                    Report {dateLabel(holding.report_date)} ·{' '}
+                    {holding.availability_basis === 'observed' ? 'Observed' : 'Published'}{' '}
                     {dateLabel(holding.published_at)} · Weight {holding.weight.toFixed(2)}%
                   </p>
                   <Source url={holding.source_url} />

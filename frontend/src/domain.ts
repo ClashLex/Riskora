@@ -24,6 +24,7 @@ export type Snapshot = {
   id: number
   report_date: string
   published_at: string
+  availability_basis?: 'publication' | 'observed'
   source_url: string
   complete: number
   weight_total: number
@@ -113,7 +114,13 @@ export type Readiness = {
   blockers: string[]
 }
 export type Evidence = {
-  holdings: { report_date: string; published_at: string; source_url: string; weight: number }[]
+  holdings: {
+    report_date: string
+    published_at: string
+    availability_basis?: 'publication' | 'observed'
+    source_url: string
+    weight: number
+  }[]
   market: { date: string; close: number; volume: number; source_url: string }[]
   events: { title: string; published_at: string; source_url: string; excerpt: string }[]
 }

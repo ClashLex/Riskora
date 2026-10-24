@@ -44,6 +44,7 @@ CREATE TABLE IF NOT EXISTS snapshots (
  id INTEGER PRIMARY KEY, scheme_id TEXT NOT NULL REFERENCES schemes(id),
  report_date TEXT NOT NULL, published_at TEXT NOT NULL, retrieved_at TEXT NOT NULL,
  source_url TEXT NOT NULL, file_sha256 TEXT NOT NULL, source_kind TEXT NOT NULL,
+ availability_basis TEXT NOT NULL DEFAULT 'publication',
  complete INTEGER NOT NULL CHECK(complete IN (0,1)), weight_total REAL NOT NULL,
  parse_status TEXT NOT NULL, warnings TEXT NOT NULL DEFAULT '[]',
  UNIQUE(scheme_id,report_date)
@@ -107,6 +108,11 @@ CREATE TABLE IF NOT EXISTS predictions (
 def init_db():
     with connect() as db:
         db.executescript(SCHEMA)
+        snapshot_columns = {row[1] for row in db.execute("PRAGMA table_info(snapshots)")}
+        if "availability_basis" not in snapshot_columns:
+            db.execute(
+                "ALTER TABLE snapshots ADD COLUMN availability_basis TEXT NOT NULL DEFAULT 'publication'"
+            )
         columns = {row[1] for row in db.execute("PRAGMA table_info(market_observations)")}
         if "source_kind" not in columns:
             db.execute(

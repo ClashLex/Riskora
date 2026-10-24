@@ -1,0 +1,6 @@
+dataset,source,url,coverage_or_note
+Monthly scheme portfolios,Aditya Birla Sun Life AMC official,https://mutualfund.adityabirlacapital.com/forms-and-downloads/portfolio,"Monthly disclosures; 45 direct archive links in manifest, Jan 2023-Sep 2026"
+AMFI scheme-wise disclosure,AMFI official,https://www.amfiindia.com/otherdata/scheme-wise-disclosure,Complementary disclosure source; quarterly scheme-wise disclosures
+Historical equity market data,NSE official,https://www.nseindia.com/all-reports,Daily equity bhavcopy; endpoint patterns in acquisition script
+UDiFF transition,NSE official circular,https://nsearchives.nseindia.com/content/circulars/INVG61787.pdf,Format transition around July 2024
+Archive URL index,Advisorkhoj index,https://www.advisorkhoj.com/form-download-centre/Mutual/Aditya-Birla-Sun-Life-Mutual-Fund/Fund-Fact-Sheets,Used to identify exact direct AMC archive links; data should be cross-checked against AMC statements

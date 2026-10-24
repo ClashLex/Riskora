@@ -74,12 +74,12 @@ export function FundPage({
                 items={[
                   ['Statements', fund.snapshots.length],
                   ['Complete', fund.snapshots.filter((item) => item.complete).length],
-                  ['Recorded changes', fund.changes_total],
+                  ['Comparison cases', fund.changes_total],
                 ]}
               />
               <Section
                 title="Disclosed holdings"
-                description="Publication date is when the statement became available."
+                description="Availability dates mark when each statement can first be used by the model."
               >
                 <label className="snapshot-select">
                   Report date
@@ -97,7 +97,10 @@ export function FundPage({
                 {snapshot && (
                   <>
                     <div className="snapshot-meta">
-                      <span>Published {dateLabel(snapshot.published_at)}</span>
+                      <span>
+                        {snapshot.availability_basis === 'observed' ? 'Observed' : 'Published'}{' '}
+                        {dateLabel(snapshot.published_at)}
+                      </span>
                       <span>{snapshot.weight_total.toFixed(2)}% total weight</span>
                       <Source url={snapshot.source_url} />
                     </div>
