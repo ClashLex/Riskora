@@ -75,7 +75,17 @@ def text(slide, value, x, y, w, h, size=16, color=INK, bold=False, align=None):
 
 def pill(slide, value, x, y, w, fill=PALE, color=ACCENT):
     box(slide, x, y, w, 0.36, fill=fill, outline=None)
-    text(slide, value, x + 0.12, y + 0.015, w - 0.24, 0.32, size=10, color=color, bold=True)
+    text(
+        slide,
+        value,
+        x + 0.12,
+        y + 0.015,
+        w - 0.24,
+        0.32,
+        size=10,
+        color=color,
+        bold=True,
+    )
 
 
 def screenshot(slide, name, x, y, w, h):
@@ -95,14 +105,34 @@ def base(number, category, title, subtitle):
     slide.background.fill.solid()
     slide.background.fill.fore_color.rgb = BG
     text(
-        slide, "RISKORA  /  AIBOOMI STARTUP WEEKEND KOCHI", 0.64, 0.25, 8.6, 0.28, 10, ACCENT, True
+        slide,
+        "RISKORA  /  AIBOOMI STARTUP WEEKEND KOCHI",
+        0.64,
+        0.25,
+        8.6,
+        0.28,
+        10,
+        ACCENT,
+        True,
     )
-    text(slide, category.upper(), 10.2, 0.25, 2.47, 0.28, 10, MUTED, align=PP_ALIGN.RIGHT)
+    text(
+        slide, category.upper(), 10.2, 0.25, 2.47, 0.28, 10, MUTED, align=PP_ALIGN.RIGHT
+    )
     line(slide, 0.64, 0.73, 12.05)
     text(slide, title, 0.64, 0.98, 12.0, 0.7, 30, INK, True)
     text(slide, subtitle, 0.64, 1.75, 12.0, 0.42, 14, MUTED)
     line(slide, 0.64, 6.95, 12.05)
-    text(slide, f"{number:02d} / 06", 12.0, 7.02, 0.68, 0.22, 9, MUTED, align=PP_ALIGN.RIGHT)
+    text(
+        slide,
+        f"{number:02d} / 06",
+        12.0,
+        7.02,
+        0.68,
+        0.22,
+        9,
+        MUTED,
+        align=PP_ALIGN.RIGHT,
+    )
     return slide
 
 
@@ -138,14 +168,34 @@ text(
 pill(s, "RESEARCH WORKSPACE", 0.64, 5.31, 2.08)
 pill(s, "AUDITABLE RANKING", 2.87, 5.31, 2.05)
 screenshot(s, "fund-detail.png", 6.17, 2.37, 6.51, 4.29)
-text(s, "Actual app · ABSL Flexi Cap · observed disclosure", 6.2, 6.69, 6.35, 0.22, 9, MUTED)
-text(s, "Ansil Muhammed N S  ·  Muhammed Ihsan K I", 0.64, 6.61, 5.25, 0.25, 10, ACCENT, True)
+text(
+    s,
+    "Actual app · ABSL Flexi Cap · observed disclosure",
+    6.2,
+    6.69,
+    6.35,
+    0.22,
+    9,
+    MUTED,
+)
+text(
+    s,
+    "Ansil Muhammed N S  ·  Muhammed Ihsan K I",
+    0.64,
+    6.61,
+    5.25,
+    0.25,
+    10,
+    ACCENT,
+    True,
+)
 notes(
     s,
     "0:00–0:20. Riskora is a research workspace for Indian equity mutual-fund disclosures. "
     "The target is a stock newly present in a later complete, comparable statement. "
     "It does not identify an order or trade date. The screenshot is the working local app, "
-    "showing an actual ABSL Flexi Cap disclosure; its publication date is unverified.",
+    "showing an actual ABSL Flexi Cap disclosure; its publication date is unverified. "
+    "Ansil worked on the frontend and interface; Ihsan worked on backend, data, and event implementation.",
 )
 
 
@@ -421,7 +471,15 @@ text(
     True,
 )
 link = text(s, "github.com/ClashLex/Riskora", 0.64, 6.71, 4.4, 0.20, 10, ACCENT)
-link.text_frame.paragraphs[0].runs[0].hyperlink.address = "https://github.com/ClashLex/Riskora"
+link.text_frame.paragraphs[0].runs[
+    0
+].hyperlink.address = "https://github.com/ClashLex/Riskora"
+demo_link = text(
+    s, "Live demo: riskora-demo.onrender.com", 5.02, 6.71, 5.25, 0.20, 10, ACCENT
+)
+demo_link.text_frame.paragraphs[0].runs[
+    0
+].hyperlink.address = "https://riskora-demo.onrender.com/"
 notes(
     s,
     "2:35–3:00. We have a working product and have checked the two supplied AMC workbooks "
@@ -432,11 +490,14 @@ notes(
     "Q&A: Does it predict trades? No: the target is a new later disclosed position. "
     "Is the accuracy real? No: the saved run is synthetic. Why AI? The classifier orders "
     "candidates from dated signals; optional LLM extraction is separate. Who pays? A team "
-    "license is a testable hypothesis. Prior work/surprise element: answer from the team's "
-    "actual event record; do not imply any unverified eligibility.\n\n"
+    "license is a testable hypothesis. Event history: the owner says the final Riskora "
+    "version was built on 24 October after several idea changes; Git also records earlier "
+    "exploratory work. No prior-prototype declaration or assigned surprise element was "
+    "reported, and the official build-window times remain unconfirmed.\n\n"
     "Source notes: code and data review in this repository; local UI captures on 24 Oct 2026; "
     "handbook timing and six-slide limit summarized in docs/event-submission/README.md. "
-    "Keep the separate AI impact statement and a public demo/recording link for submission.",
+    "The live Render demo is linked on this slide and contains fictional synthetic data only. "
+    "Keep the separate AI impact statement for submission.",
 )
 
 OUTPUT.parent.mkdir(parents=True, exist_ok=True)

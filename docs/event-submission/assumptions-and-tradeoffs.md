@@ -11,6 +11,6 @@ These are implementation decisions in the current prototype, not validated busin
 | Keep fictional sample separate from user imports | Makes the full workflow demoable without real data | Sample metrics say nothing about Indian-market performance |
 | Use logistic regression and simple baselines | Training and contributions can be inspected | Nonlinear patterns may be missed; scores are not calibrated |
 | Make language-model extraction optional | Holdings ranking works without hosted credentials | Event features are unavailable unless configured and validated |
-| Use local SQLite and a management token | Low setup cost for an in-person demo | No multi-user access controls, hosted availability, or deployment hardening |
+| Use SQLite and a management token | Low setup cost for an in-person or hosted demo | No multi-user access controls; the free hosted demo sleeps and its database is ephemeral |
 
 The next evidence gates are permissioned source files, publication-date audits, real held-out evaluation across funds and periods, and interviews with intended users. No commercial value or predictive accuracy is assumed before those gates.

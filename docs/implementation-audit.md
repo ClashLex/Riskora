@@ -28,6 +28,8 @@ Additional backend corrections: market reads default to imported data and accept
 
 Reviewed the official [Gooey Nav documentation](https://reactbits.dev/components/gooey-nav), its [TypeScript source](https://github.com/DavidHDev/react-bits/blob/main/src/ts-default/Components/GooeyNav/GooeyNav.tsx), the existing supplied background source, and the official [Stepper page](https://reactbits.dev/components/stepper). The public Gradient ASCII page could not be retrieved; no claims about current remote props were inferred from that failure. No new React Bits code or Pro assets were installed.
 
+Subsequent attribution review identified the supplied Dither and Pill Nav files as close adaptations of React Bits source. Their separate license and source links are recorded in [third-party notices](../THIRD_PARTY_NOTICES.md).
+
 Scores below are this project's design judgments, using the guide's eight 0–2 criteria: user job, abstraction, evidence, visual fit, honesty, accessibility, performance, maintenance. They are not general quality ratings of the library.
 
 | Candidate | Scores in criterion order | Total | Decision |

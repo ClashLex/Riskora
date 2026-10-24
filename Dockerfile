@@ -19,6 +19,8 @@ COPY backend/requirements.txt /app/backend/requirements.txt
 RUN pip install --no-cache-dir -r /app/backend/requirements.txt
 COPY backend/app/ /app/backend/app/
 COPY --from=frontend-build /build/frontend/dist/ /app/frontend/dist/
+COPY LICENSE THIRD_PARTY_NOTICES.md /app/
+COPY third_party/react-bits-LICENSE.md /app/third_party/react-bits-LICENSE.md
 RUN mkdir -p /tmp/riskora
 WORKDIR /app/backend
 CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-10000}"]

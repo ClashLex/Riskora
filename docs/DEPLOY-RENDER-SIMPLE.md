@@ -2,6 +2,8 @@
 
 This repository supports a **single Render web service**. The Docker build compiles React and runs FastAPI in the same service, so the frontend can use its existing relative `/api/v1` requests. You do not need a domain name, VPS, Caddy, or separate frontend/backend services. The checked-in Blueprint uses Render's free plan for a temporary public demo.
 
+Current hosted demo: <https://riskora-demo.onrender.com/>. It serves only the fictional synthetic dataset; the supplied ABSL workbooks are not in this deployment image.
+
 ## Deploy
 
 1. Push this version of the repository to GitHub. Make sure `Dockerfile`, `.dockerignore`, and `render.yaml` are at the repository root.
@@ -23,4 +25,4 @@ This repository supports a **single Render web service**. The Docker build compi
 
 Render's [free web service](https://render.com/docs/free) spins down after 15 minutes without traffic and loses local filesystem changes when it spins down, restarts, or redeploys. The synthetic sample and synthetic model are recreated at startup, but user-imported holdings, events, and any additional training runs are **not persistent**. This setup is for demos only. For persistent real-data usage, add a paid persistent disk or migrate storage to a managed database and object storage before relying on it.
 
-Do not describe the synthetic demonstration as real-world prediction performance. The included real ABSL snapshots still need verified publication dates and a broader historical dataset before they can support a genuine backtest.
+Do not describe the synthetic demonstration as real-world prediction performance. The repository's real ABSL snapshots still need verified publication dates and a broader historical dataset before they can support a genuine backtest.

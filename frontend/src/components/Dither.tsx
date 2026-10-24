@@ -1,5 +1,8 @@
 'use client'
 
+// Adapted from React Bits Dither by David Haz. MIT + Commons Clause applies.
+// See THIRD_PARTY_NOTICES.md and third_party/react-bits-LICENSE.md.
+
 import { useEffect, useRef, type CSSProperties } from 'react'
 import './Dither.css'
 

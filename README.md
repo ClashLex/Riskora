@@ -1,12 +1,14 @@
 # Riskora — Indian Mutual Fund Purchase Intelligence
 
-Riskora is a local research prototype that ranks stocks that may **newly appear in the next valid disclosed portfolio snapshot** of an Indian equity mutual-fund scheme. A disclosure reports positions at a date; it cannot reveal an order, its execution date, or a manager's intent. Scores are uncalibrated ranking scores, not probabilities or investment advice.
+Riskora is a working research prototype that ranks stocks that may **newly appear in the next valid disclosed portfolio snapshot** of an Indian equity mutual-fund scheme. A disclosure reports positions at a date; it cannot reveal an order, its execution date, or a manager's intent. Scores are uncalibrated ranking scores, not probabilities or investment advice.
 
 ## Problem, users, and solution
 
 Fund portfolio statements are retrospective. A researcher comparing Indian equity mutual-fund disclosures must assemble dated holdings, distinguish a genuinely new position from an existing one, and check what was knowable before the next statement. Riskora is intended for analysts and research teams exploring that question; it has not been validated with paying customers.
 
 The prototype accepts normalized, attributed disclosures and optional market observations, checks comparability and publication dates, trains a point-in-time ranking model, and shows candidate stocks with their supporting inputs and a later-period evaluation. The repository contains a **synthetic model demonstration** and two supplied ABSL Flexi Cap snapshots for portfolio exploration, not an established prediction service or a verified Indian-market performance claim.
+
+**Why AI:** The inspectable classifier combines dated holdings and market signals into a shortlist an analyst can review against source evidence and simple baselines. The optional language model can extract source-checked facts from supplied event excerpts; it is not required for rankings. Whether the shortlist saves analyst time remains to be tested.
 
 **Stack:** React 19, TypeScript, Vite, FastAPI, SQLite, scikit-learn, and an optional OpenAI-compatible language-model endpoint for grounded event extraction. See [assumptions and trade-offs](docs/event-submission/assumptions-and-tradeoffs.md) for the choices behind this scope.
 
@@ -17,14 +19,22 @@ For a guided explanation of the screens and data flow, see [how the site works](
 | Item | Location or status |
 | --- | --- |
 | GitHub repository | <https://github.com/ClashLex/Riskora> (configured `origin`; local changes need publishing before reviewers see them) |
-| Product demo | [Run the local prototype](#start-locally) with the [three-minute demo script](docs/event-submission/demo-runbook.md). A public app or recording URL has not been supplied. |
-| Pitch deck | [Six-slide PowerPoint deck](docs/event-submission/Riskora-pitch-deck.pptx) and [editable slide content](docs/event-submission/pitch-deck.md) |
+| Product demo | [Live synthetic demo](https://riskora-demo.onrender.com/) and [three-minute demo script](docs/event-submission/demo-runbook.md). The [local setup](#start-locally) is a fallback. |
+| Pitch deck | [Six-slide PowerPoint deck](docs/event-submission/Riskora-pitch-deck.pptx), [slide guide](docs/event-submission/pitch-deck.md), and [build script](scripts/build_pitch_deck.py) |
 | AI impact statement | [AI impact statement](docs/event-submission/ai-impact-statement.md) (under 200 words) |
 | Submission and provenance | [Handbook alignment and outstanding items](docs/event-submission/README.md) |
 
-**Team:** Ansil Muhammed N S and Muhammed Ihsan K I. Roles and contacts have not been provided.
+**Team:** Ansil Muhammed N S — frontend and interface; Muhammed Ihsan K I — backend, data handling, and other event implementation work (roles reported by the owner).
 
-The event's fresh-build and surprise-element requirements depend on the actual kickoff and organizer assignment. [Prior-work disclosure](docs/event-submission/README.md#prior-work-and-surprise-element) records what still needs owner confirmation. Do not present existing commits or synthetic data as event-built or real-market evidence without that check.
+**Event work (owner report, 24 October 2026):** The idea changed several times before the team settled on Riskora and built its current version on 24 October. Git also records related exploratory work on 23 October. The owner reports that no earlier prototype was declared at kickoff and no surprise element was assigned. The official kickoff and code-freeze times have not been supplied, so this README does not claim fresh-build eligibility.
+
+**Before handbook submission, the team must provide or confirm:**
+
+- Confirm the official build window and how organizers want the earlier exploratory commits and absence of a prototype declaration recorded. See [prior-work disclosure](docs/event-submission/README.md#prior-work-and-surprise-element).
+- Verify publication dates and redistribution permission for the supplied AMC workbooks and screenshots before treating them as publishable or using them in a real evaluation. See [data sources](DATA_SOURCES.md) and [attribution](docs/event-submission/data-and-attribution.md).
+- Push the intended final revision, verify the public GitHub URL, and submit the separate deck and [AI impact statement](docs/event-submission/ai-impact-statement.md).
+
+Do not present existing commits or synthetic data as event-built or real-market evidence without those checks.
 
 The website uses a white and gray research workspace over a restrained dither background. Fund disclosures, rankings, supporting signals, evaluation, and data management are available in the interface.
 
@@ -54,7 +64,7 @@ Open <http://127.0.0.1:5173>. API documentation is at <http://127.0.0.1:8001/doc
 3. Open **Evaluation**, choose **Synthetic sample** and the monthly period, then click **Train and evaluate**. This trains and evaluates on synthetic records only.
 4. Open **Predictions** and rank candidates. Open a company to inspect its cutoff-dated inputs and supporting signals.
 
-Synthetic evaluation numbers verify the code path; they do not measure predictive performance in Indian markets. No genuine model is bundled or pretrained.
+The [hosted demo](https://riskora-demo.onrender.com/) seeds and trains this fictional sample automatically; open **Evaluation** and **Predictions** without the management token. Synthetic evaluation numbers verify the code path; they do not measure predictive performance in Indian markets. No genuine model is bundled or pretrained.
 
 ## Explore the supplied ABSL Flexi Cap disclosures
 
@@ -67,6 +77,8 @@ python scripts/load_supplied_disclosures.py
 The script validates both CSVs against their source workbooks, loads both snapshots into the local SQLite database, and is safe to rerun. Open **Fund explorer** and choose **ADITYA BIRLA SUN LIFE FLEXI CAP FUND**. August has 84 usable Indian-ISIN equity rows (98.4452% of AUM); September has 82 (97.8734%). Each workbook has one zero-value unlisted identifier outside the Indian ISIN format, which is omitted. The conversion keeps units, scales `% to AUM` fractions to percentage points, and converts market value from lakhs to rupees. See [the data review](docs/absl-data-review.md).
 
 The workbooks were downloaded from the two AMC archive URLs in the [acquisition manifest](docs/absl-data-acquisition.md) and match the normalized data. Their exact public release dates remain unverified. The loader records its run date as the first observed availability date, links each snapshot to its AMC archive, and marks both ineligible for model labels. The dates appear as **Observed** in the explorer. The local database is ignored by Git, so another checkout must run the loader. Do not interpret the August-to-September difference as verified trading activity or real predictive performance.
+
+The original workbooks and normalized CSVs are tracked in this repository, but permission to redistribute the originals or screenshots has not been verified. The [data-source register](DATA_SOURCES.md) records the known URLs, hashes, and rights status. The project's MIT license does not cover AMC data.
 
 ## Import real disclosures
 
@@ -154,4 +166,8 @@ Known limitations: the supplied ABSL `.xls` can be normalized by `scripts/normal
 
 ## One-service public demo
 
-The root `Dockerfile` and `render.yaml` build React and serve it with FastAPI from one URL. The Render free-demo configuration recreates and trains **fictional synthetic data only** on startup. See the [Render deployment guide](docs/DEPLOY-RENDER-SIMPLE.md). Its `/tmp` database, uploads, and models are ephemeral; use [persistent hosting](docs/hosting-live.md) for data you need to keep.
+The [live demo](https://riskora-demo.onrender.com/) uses the root `Dockerfile` and `render.yaml` to build React and serve it with FastAPI from one URL. The Render free-demo configuration recreates and trains **fictional synthetic data only** on startup. See the [Render deployment guide](docs/DEPLOY-RENDER-SIMPLE.md). Its `/tmp` database, uploads, and models are ephemeral; use [persistent hosting](docs/hosting-live.md) for data you need to keep.
+
+## License and attribution
+
+The team's original code is available under the [MIT license](LICENSE). Adapted React Bits Dither and Pill Nav source retains its own **MIT + Commons Clause** terms; see [third-party notices](THIRD_PARTY_NOTICES.md). The MIT license does not grant rights in the supplied AMC workbooks, derived data, or screenshots; see [data sources](DATA_SOURCES.md).

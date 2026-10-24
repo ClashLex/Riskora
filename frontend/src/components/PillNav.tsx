@@ -1,5 +1,8 @@
 'use client'
 
+// Adapted from React Bits Pill Nav by David Haz. MIT + Commons Clause applies.
+// See THIRD_PARTY_NOTICES.md and third_party/react-bits-LICENSE.md.
+
 import {
   useCallback,
   useEffect,
