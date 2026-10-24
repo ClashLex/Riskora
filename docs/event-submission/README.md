@@ -9,8 +9,7 @@ README.md                         Project overview, setup, model, and limits
 backend/app/                      API, imports, data store, labels, and model
 backend/tests/                    Backend behavior checks
 frontend/src/                     Six-screen research interface
-docs/event-submission/            Deck, impact statement, demo, provenance
-scripts/build_pitch_deck.py       Rebuilds the PowerPoint deck
+docs/event-submission/            Editable deck, impact statement, demo, provenance
 ```
 
 ## What reviewers can inspect
@@ -20,7 +19,7 @@ scripts/build_pitch_deck.py       Rebuilds the PowerPoint deck
 | GitHub repository and a README explaining the problem, idea, stack, setup, and demo (p. 5) | Root [README](../../README.md) and public repository at <https://github.com/ClashLex/Riskora> | Public repository reachable; push the final local revision before submitting the URL |
 | Product demo link: video, hosted app, or presentation showing the prototype in action (p. 5) | [Live synthetic demo](https://riskora-demo.onrender.com/) and [demo runbook](demo-runbook.md) | Available; homepage, API, and sample ranking checked on 24 October 2026 |
 | Live demo link (optional, favored; p. 5) | [Riskora on Render](https://riskora-demo.onrender.com/) | Available; free service may take time to wake |
-| Pitch deck of at most six slides (pp. 5, 9–10) | [PowerPoint deck](Riskora-pitch-deck.pptx), [slide guide](pitch-deck.md), and local app screenshots | Prepared with six slides, actual UI captures, timed speaker notes, and live demo link |
+| Pitch deck of at most six slides (pp. 5, 9–10) | [PowerPoint deck](Riskora-pitch-deck.pptx) and [slide guide](pitch-deck.md) | Prepared with six slides, a labelled schematic interface, and speaker notes; the live demo link is supplied separately |
 | AI impact statement of at most 200 words (pp. 6, 10) | [AI impact statement](ai-impact-statement.md) | Prepared |
 | Data provenance, attribution, evaluation, limitations (pp. 3–4, 8–10) | [Data-source register](../../DATA_SOURCES.md), [data and attribution](data-and-attribution.md), root README | Sources documented; ABSL release dates and redistribution rights remain unverified |
 | Team names, roles, contacts (p. 9) | Ansil Muhammed N S: frontend and interface; Muhammed Ihsan K I: backend, data, and event implementation | Names and roles recorded; owner says public contact details are not needed |
@@ -45,7 +44,7 @@ Until the timing and organizer requirement are confirmed, this package does **no
 1. Follow the [local setup](../../README.md#start-locally) and [demo runbook](demo-runbook.md) against a clean database.
 2. Verify every claimed source URL, publication date, permission, and asset license before importing real data or submitting screenshots.
 3. Recheck the [hosted demo](https://riskora-demo.onrender.com/) just before judging; keep the local setup as a fallback if the free service is waking or unavailable.
-4. Rehearse the live app with the deck's timed speaker notes. Its screenshots were captured locally; keep a working live fallback.
+4. Rehearse the live app and the deck's speaker notes within the three-minute limit. The deck uses diagrams and a labelled schematic interface; keep the live app ready to show the working product.
 5. Confirm the prior-work details above with organizers. The team's original code uses [MIT](../../LICENSE); adapted React Bits components and AMC data have separate rights.
 6. Publish the intended changes, confirm the GitHub URL opens, and upload the repository URL, deck, AI impact statement, and demo link to the event portal before its deadline.
 

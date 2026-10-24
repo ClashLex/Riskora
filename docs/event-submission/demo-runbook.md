@@ -8,7 +8,7 @@ Use this with the actual application. The synthetic sample is deliberately ficti
 2. For the local fallback, enter the management token privately in Data management and choose **Load synthetic sample**. This creates two fictional funds with 15 monthly snapshots each plus fictional market observations. The operation is idempotent for an already loaded sample.
 3. For the local fallback, select **Synthetic sample** and **Monthly** in Evaluation, check readiness, then run **Train and evaluate**. Wait for a completed run before the presentation.
 4. Open the synthetic fund in Fund explorer, the saved evaluation, Predictions, and a candidate's supporting signals once. Keep a browser tab at Fund explorer for the live sequence.
-5. Have the [deck](Riskora-pitch-deck.pptx) and root README available as the fallback if a service stops. The deck contains actual local UI captures, with synthetic views labelled; do not claim the deck is a live demo.
+5. Have the [deck](Riskora-pitch-deck.pptx) and root README available as the fallback if a service stops. The deck includes a labelled schematic interface; show the app separately for the working demo.
 
 ## Three-minute final demo
 
